@@ -1,0 +1,11 @@
+{
+  "tsx": true,
+  "componentDir": "./shared/ui",
+  "tailwind": {
+    "config": "shared/tailwind.config.cjs",
+    "css": "shared/app.css"
+  },
+  "aliases": {
+    "path": "shared/*"
+  }
+}
