@@ -5,6 +5,9 @@ These are a set of experiments to compare different offline-first libraries.The 
 - Baseline app using just `@tanstack/query` with optimistic responses and no offline functionality.
   - [app](https://trellix-tanstack-query.up.railway.app/)
   - [source](https://github.com/obedm503/trellix-offline/tree/master/tanstack-query)
+- `@tanstack/query` + [`normy`](https://github.com/klis87/normy) + [idb-keyval persister](https://tanstack.com/query/latest/docs/framework/react/plugins/persistQueryClient#building-a-persister) with automatic optimistic responses, cache normalization, and offline persistence.
+  - [app](https://trellix-tanstack-query-normy.up.railway.app/)
+  - [source](https://github.com/obedm503/trellix-offline/tree/master/tanstack-query-normy)
 
 ## Developing
 

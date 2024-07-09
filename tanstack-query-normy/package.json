@@ -1,0 +1,13 @@
+{
+  "name": "tanstack-query-normy",
+  "type": "module",
+  "scripts": {
+    "start": "serve -p $PORT --single dist/",
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "shared": "workspace:*"
+  }
+}
