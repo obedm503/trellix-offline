@@ -3,9 +3,11 @@ import solid from "vite-plugin-solid";
 // import devtools from 'solid-devtools/vite';
 import { fileURLToPath, URL } from "node:url";
 import { Mode, plugin as markdown } from "vite-plugin-markdown";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   plugins: [
+    VitePWA({ registerType: "autoUpdate" }),
     markdown({ mode: [Mode.HTML] }),
     /* 
     Uncomment the following line to enable solid-devtools.

@@ -1,9 +1,11 @@
 import { RouteDefinition, Router } from "@solidjs/router";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
+import { PersistQueryClientProvider } from "@tanstack/solid-query-persist-client";
 import { api } from "shared/api";
 import { Nav } from "shared/nav";
 import { Toaster } from "shared/ui/toast";
 import { lazy, onMount, Suspense } from "solid-js";
+import { createIDBPersister } from "./persister";
 
 const routes: RouteDefinition[] = [
   {
@@ -45,22 +47,27 @@ export function App() {
   });
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router
-        root={(props) => (
-          <>
-            <div class="flex h-screen w-screen flex-col gap-2">
-              <Nav />
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister: createIDBPersister() }}
+    >
+      <QueryClientProvider client={queryClient}>
+        <Router
+          root={(props) => (
+            <>
+              <div class="flex h-screen w-screen flex-col gap-2">
+                <Nav />
 
-              <Suspense>{props.children}</Suspense>
-            </div>
+                <Suspense>{props.children}</Suspense>
+              </div>
 
-            <Toaster />
-          </>
-        )}
-      >
-        {routes}
-      </Router>
-    </QueryClientProvider>
+              <Toaster />
+            </>
+          )}
+        >
+          {routes}
+        </Router>
+      </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 }
