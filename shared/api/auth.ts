@@ -16,8 +16,6 @@ export function getUser(redirectIfNone: boolean = true) {
 
     onCleanup(
       pb.authStore.onChange(() => {
-        console.log({ authStore: pb.authStore });
-
         const user = pb.authStore.isValid ? (pb.authStore.model as User) : null;
         setUser(user);
 

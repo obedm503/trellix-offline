@@ -86,13 +86,13 @@ export default function Lists() {
               canDelete={(item) => !item.id}
               find={(item, target) => item.public_id === target.public_id}
               delete={async (item) => {
-                if (typeof item.id === "number") {
+                if (item.id) {
                   return save.mutateAsync([{ _op: "delete", id: item.id }]);
                 }
               }}
               update={async (items) => {
                 const list = items
-                  .filter((item) => typeof item.id === "number")
+                  .filter((item) => item.id)
                   .map((item, i) => ({
                     _op: "update" as const,
                     id: item.id,
@@ -124,7 +124,7 @@ export default function Lists() {
                 return (
                   <>
                     <Button
-                      class="h-10 w-10 border-primary text-xs text-primary hover:text-primary/90"
+                      class="border-primary text-primary hover:text-primary/90 h-10 w-10 text-xs"
                       variant="outline"
                       size="icon"
                       as="a"
