@@ -6,14 +6,14 @@ import type {
   ListItem,
 } from "shared/api/schema";
 import { showToast } from "shared/ui/toast";
-import { createReactivityAdapter, ReplicatedCollection } from "signaldb";
-import { createSignal, onCleanup } from "solid-js";
-import { createIDBPersister } from "./idb-persister";
 import {
-  pullCollection,
-  pushCollection,
-  subscribeCollection,
-} from "./pocketbase-persister";
+  Collection,
+  combinePersistenceAdapters,
+  createReactivityAdapter,
+} from "signaldb";
+import { createSignal, onCleanup } from "solid-js";
+import { idbPersister } from "./idb-persister";
+import { pocketbaseReplication } from "./pocketbase-replication";
 
 const reactivity = createReactivityAdapter({
   create() {
@@ -46,70 +46,70 @@ function errorHandler(error: Error) {
   });
 }
 
-export const board = new ReplicatedCollection<Board>({
+export const board = new Collection<Board>({
   memory: [],
   reactivity,
-  persistence: createIDBPersister("board"),
-  pull: pullCollection("board"),
-  push: pushCollection("board"),
-  registerRemoteChange: subscribeCollection("board"),
+  persistence: combinePersistenceAdapters(
+    pocketbaseReplication("board"),
+    idbPersister("board"),
+  ),
 }).on("persistence.error", errorHandler);
 
-export const board_column = new ReplicatedCollection<
+export const board_column = new Collection<
   BoardColumn & { expand: { board: { public_id: string } } }
 >({
   memory: [],
   reactivity,
-  persistence: createIDBPersister("board_column"),
-  pull: pullCollection("board_column", {
-    expand: ["board"],
-    fields: ["*", "expand.board.public_id"],
-  }),
-  push: pushCollection("board_column"),
-  registerRemoteChange: subscribeCollection("board_column"),
+  persistence: combinePersistenceAdapters(
+    pocketbaseReplication("board_column", {
+      expand: ["board"],
+      fields: ["*", "expand.board.public_id"],
+    }),
+    idbPersister("board_column"),
+  ),
 }).on("persistence.error", errorHandler);
 
-export const board_item = new ReplicatedCollection<
+export const board_item = new Collection<
   BoardItem & {
     expand: { column: { expand: { board: { public_id: string } } } };
   }
 >({
   memory: [],
   reactivity,
-  persistence: createIDBPersister("board_item"),
-  pull: pullCollection("board_item", {
-    expand: ["column.board"],
-    fields: [
-      "*",
-      "expand.column.public_id",
-      "expand.column.expand.board.public_id",
-    ],
-  }),
-  push: pushCollection("board_item"),
-  registerRemoteChange: subscribeCollection("board_item"),
+  persistence: combinePersistenceAdapters(
+    pocketbaseReplication("board_item", {
+      expand: ["column.board"],
+      fields: [
+        "*",
+        "expand.column.public_id",
+        "expand.column.expand.board.public_id",
+      ],
+    }),
+    idbPersister("board_item"),
+  ),
 }).on("persistence.error", errorHandler);
 
-export const list = new ReplicatedCollection<List>({
+export const list = new Collection<List>({
   memory: [],
   reactivity,
-  persistence: createIDBPersister("list"),
-  pull: pullCollection("list"),
-  push: pushCollection("list"),
-  registerRemoteChange: subscribeCollection("list"),
+  persistence: combinePersistenceAdapters(
+    pocketbaseReplication("list"),
+    idbPersister("list"),
+  ),
 }).on("persistence.error", errorHandler);
 
-export const list_item = new ReplicatedCollection<
+export const list_item = new Collection<
   ListItem & { expand: { list: { public_id: string } } }
 >({
   memory: [],
   reactivity,
-  push: pushCollection("list_item"),
-  pull: pullCollection("list_item", {
-    expand: ["list"],
-    fields: ["*", "expand.list.public_id"],
-  }),
-  registerRemoteChange: subscribeCollection("list_item"),
-  persistence: createIDBPersister("list_item"),
+  persistence: combinePersistenceAdapters(
+    pocketbaseReplication("list_item", {
+      expand: ["list"],
+      fields: ["*", "expand.list.public_id"],
+    }),
+    idbPersister("list_item"),
+  ),
 }).on("persistence.error", errorHandler);
 
 export const collections = { board, board_column, board_item, list, list_item };

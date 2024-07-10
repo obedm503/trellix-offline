@@ -1,6 +1,6 @@
 import { RouteSectionProps } from "@solidjs/router";
 import Plus from "lucide-solid/icons/plus";
-import { publicId } from "shared/nanoid";
+import { pocketbaseId, publicId } from "shared/nanoid";
 import { ReorderList } from "shared/reorder-list";
 import { ScrollableCardLayout } from "shared/scrollable-card-layout";
 import { Button } from "shared/ui/button";
@@ -54,6 +54,7 @@ export default function ListDetail(props: RouteSectionProps) {
 
               if (listItemText().length) {
                 collections.list_item.insert({
+                  id: pocketbaseId(),
                   list: list()!.id,
                   text: listItemText(),
                   public_id: publicId(),

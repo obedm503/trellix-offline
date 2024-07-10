@@ -1,6 +1,6 @@
 import Link from "lucide-solid/icons/link";
 import Plus from "lucide-solid/icons/plus";
-import { publicId } from "shared/nanoid";
+import { pocketbaseId, publicId } from "shared/nanoid";
 import { ReorderList } from "shared/reorder-list";
 import { ScrollableCardLayout } from "shared/scrollable-card-layout";
 import { Button } from "shared/ui/button";
@@ -38,6 +38,7 @@ export default function Lists() {
 
               if (listName().length) {
                 collections.list.insert({
+                  id: pocketbaseId(),
                   name: listName(),
                   public_id: publicId(),
                 } as any);

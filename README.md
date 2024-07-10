@@ -83,11 +83,11 @@ Uses [SignalDB](https://github.com/maxnowack/signaldb) to intermediate interacti
 - No loading states anywhere
 - Cross-client (tab and device) synchronization
 - Simple yet powerful query api
+- Allows only updating changed rows after a change
 
 ### Cons
 
 - SignalDB is pre 1.0
-- Reloads complete dataset after every change, ([for now](https://github.com/maxnowack/signaldb/pull/776))
 - Loads all datasets on startup. There is an [`AutoFetchCollection`](https://signaldb.js.org/replication/#autofetchcollection) that loads until requested, but it's meant for loading a different dataset for each query.
 
 ## Developing

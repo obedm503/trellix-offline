@@ -27,7 +27,7 @@ export function createOptimisticMutation<Input extends Op, Output = unknown>(
       const updates = variables
         .filter((item) => item._op === "update")
         .map((item) => omit(item, "_op"));
-      console.log({ updates, rollbackData });
+
       const updatesMap = keyBy(updates as any, "public_id");
       const creates = variables
         .filter((item) => item._op === "create")

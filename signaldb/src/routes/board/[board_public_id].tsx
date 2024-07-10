@@ -2,7 +2,7 @@ import { RouteSectionProps } from "@solidjs/router";
 import type { BoardColumn, BoardItem } from "shared/api/schema";
 import { Board } from "shared/board";
 import type { Column, Item } from "shared/board/context";
-import { publicId } from "shared/nanoid";
+import { pocketbaseId, publicId } from "shared/nanoid";
 import { scroll } from "shared/scrollable-card-layout";
 import { createEffect, createMemo, onCleanup } from "solid-js";
 import { collections } from "../../collections";
@@ -93,6 +93,7 @@ export default function Boards(props: RouteSectionProps) {
         onItemCreated={(item) => {
           const col = columnMap()[item.columnPublicId];
           collections.board_item.insert({
+            id: pocketbaseId(),
             text: item.text,
             public_id: publicId(),
             column: col.id,
@@ -120,6 +121,7 @@ export default function Boards(props: RouteSectionProps) {
         }}
         onColumnCreated={(col) => {
           collections.board_column.insert({
+            id: pocketbaseId(),
             board: board()!.id,
             name: col.text,
             public_id: publicId(),

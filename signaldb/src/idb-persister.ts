@@ -5,7 +5,7 @@ import { createPersistenceAdapter } from "signaldb";
  * Creates an Indexed DB persister
  * @see https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
  */
-export function createIDBPersister<
+export function idbPersister<
   T extends { id: I } & Record<string, any>,
   I,
 >(name: string) {
