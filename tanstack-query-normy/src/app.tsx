@@ -1,12 +1,13 @@
 import { RouteDefinition, Router } from "@solidjs/router";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
+import { PersistQueryClientProvider } from "@tanstack/solid-query-persist-client";
 import { api } from "shared/api";
+import { pb } from "shared/api/pb";
 import { Nav } from "shared/nav";
 import { Toaster } from "shared/ui/toast";
 import { lazy, onMount, Suspense } from "solid-js";
-import { QueryNormalizerProvider } from "./query-normalizer-provider";
-import { PersistQueryClientProvider } from "@tanstack/solid-query-persist-client";
 import { createIDBPersister } from "./persister";
+import { QueryNormalizerProvider } from "./query-normalizer-provider";
 
 const routes: RouteDefinition[] = [
   {
@@ -45,6 +46,12 @@ export function App() {
 
   onMount(() => {
     api.auth.refresh().catch(console.error);
+
+    pb.authStore.onChange(() => {
+      if (!pb.authStore.isValid) {
+        queryClient.clear();
+      }
+    });
   });
 
   return (
