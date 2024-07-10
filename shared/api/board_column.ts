@@ -1,8 +1,8 @@
+import { omit } from "lodash-es";
 import { z } from "zod";
-import { PUBLIC_ID_SCHEMA } from "../nanoid";
+import { pocketbaseId, PUBLIC_ID_SCHEMA } from "../nanoid";
 import { pb } from "./pb";
 import { BoardColumn, User } from "./schema";
-import { omit } from "lodash-es";
 
 export async function get(board_public_id: string) {
   return await pb.collection<BoardColumn>("board_column").getFullList({
@@ -66,6 +66,7 @@ export async function mutate(boardId: string, inputs: BoardColumnInputs) {
       .map((item, i) =>
         pb.collection<BoardColumn>("board_column").create({
           ...omit(item, "_op"),
+          id: pocketbaseId(),
           created_by: user.id,
           order: greatestOrder + i,
         }),

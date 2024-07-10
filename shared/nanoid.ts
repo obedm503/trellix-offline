@@ -11,3 +11,9 @@ export const publicId = customAlphabet(
   "6789BCDFGHJKLMNPQRTWbcdfghjkmnpqrtwz",
   PUBLIC_ID_LENGTH,
 );
+
+export const pocketbaseId = customAlphabet(
+  "6789BCDFGHJKLMNPQRTWbcdfghjkmnpqrtwz",
+  // pb has a strict 15 character id length
+  15,
+);

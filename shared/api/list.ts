@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PUBLIC_ID_SCHEMA } from "../nanoid";
+import { pocketbaseId, PUBLIC_ID_SCHEMA } from "../nanoid";
 import { pb } from "./pb";
 import { List, User } from "./schema";
 import { omit } from "lodash-es";
@@ -61,6 +61,7 @@ export async function mutate(inputs: ListInputs) {
       .map((item, i) =>
         pb.collection<List>("list").create({
           ...omit(item, "_op"),
+          id: pocketbaseId(),
           created_by: user.id,
           order: greatestOrder + i,
         }),
