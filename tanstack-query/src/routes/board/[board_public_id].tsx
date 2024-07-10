@@ -111,6 +111,7 @@ export default function Boards(props: RouteSectionProps) {
                 order: item.order,
                 id: itemMap()[item.publicId].id,
                 column: columnMap()[item.columnPublicId].id,
+                text: item.text,
               })),
             ),
           );
@@ -152,6 +153,7 @@ export default function Boards(props: RouteSectionProps) {
                 _op: "update",
                 id: columnMap()[col.publicId].id,
                 order: col.order,
+                name: col.text,
               })),
             ),
           );

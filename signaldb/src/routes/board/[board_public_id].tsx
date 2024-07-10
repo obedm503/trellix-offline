@@ -111,6 +111,7 @@ export default function Boards(props: RouteSectionProps) {
                 $set: {
                   order: item.order,
                   column: columnMap()[item.columnPublicId].id,
+                  text: item.text,
                 },
               },
             );
@@ -135,7 +136,7 @@ export default function Boards(props: RouteSectionProps) {
           for (const col of updated) {
             collections.board_column.updateOne(
               { id: columnMap()[col.publicId].id },
-              { $set: { order: col.order } },
+              { $set: { order: col.order, name: col.text } },
             );
           }
         }}

@@ -30,6 +30,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { TextField, TextFieldInput } from "../ui/text-field";
 import { cn } from "../utils";
 import {
   useBoardContext,
@@ -200,16 +201,30 @@ function CardPrimitive(props: {
   dragHandle: ((el: HTMLDivElement) => void) | undefined;
   canDelete: boolean;
   onDelete(): void;
+  onTextChange(text: string): void;
 }) {
+  let textInput!: HTMLInputElement;
+  const [editing, setEditing] = createSignal(false);
+  const [text, setText] = createSignal(props.item.text);
+  function onFocusOut() {
+    if (props.item.text !== text()) {
+      props.onTextChange(text());
+    }
+
+    setEditing(false);
+  }
+
   return (
     <div class="relative border-b border-secondary last:border-b-0">
       <div
         ref={props.dropTarget}
         data-board={
-          props.state.type === "preview" ? undefined : "item:" + props.item.publicId
+          props.state.type === "preview"
+            ? undefined
+            : "item:" + props.item.publicId
         }
         class={cn(
-          "flex flex-row items-center justify-between gap-1 bg-background p-4 py-2",
+          "flex flex-row items-center justify-between gap-2 bg-background p-4 py-2",
           props.state.type === "preview" ? "rounded-lg border shadow" : "",
         )}
       >
@@ -217,7 +232,36 @@ function CardPrimitive(props: {
           <GripVertical size="1.5rem" />
         </div>
 
-        <h3 class="grow">{props.item.text}</h3>
+        <Show
+          when={editing()}
+          fallback={
+            <h3
+              class="grow cursor-text text-base"
+              onClick={() => {
+                setEditing(true);
+                textInput.focus();
+              }}
+            >
+              {props.item.text}
+            </h3>
+          }
+        >
+          <TextField
+            class="grow"
+            disabled={!props.canDelete}
+            value={text()}
+            onChange={setText}
+            onFocusOut={onFocusOut}
+          >
+            <TextFieldInput
+              ref={textInput}
+              class="text-base disabled:cursor-default"
+              type="text"
+              minLength={1}
+              maxLength={50}
+            />
+          </TextField>
+        </Show>
 
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -343,6 +387,9 @@ export function BoardCard(props: {
         closestEdge={closestEdge()}
         canDelete={props.canDelete}
         onDelete={props.onDelete}
+        onTextChange={(text) => {
+          ctx.updateCardText({ ...props.item, text });
+        }}
       />
 
       <Show when={state().type === "preview" && state()} keyed>
@@ -366,6 +413,7 @@ export function BoardCard(props: {
                   dropTarget={undefined}
                   canDelete={false}
                   onDelete={() => {}}
+                  onTextChange={() => {}}
                 />
               </div>
             </Portal>

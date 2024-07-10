@@ -247,7 +247,18 @@ function BoardColumn(props: {
     },
   };
 
-  const [itemText, setItemText] = createSignal("");
+  const [newItemText, setNewItemText] = createSignal("");
+
+  let columnTextInput!: HTMLInputElement;
+  const [editingColumn, setEditingColumn] = createSignal(false);
+  const [columnText, setColumnText] = createSignal(props.column.text);
+  function onFocusOut() {
+    if (props.column.text !== columnText()) {
+      boardCtx.updateColumnText({ ...props.column, text: columnText() });
+    }
+
+    setEditingColumn(false);
+  }
 
   return (
     <ColumnContext.Provider value={contextValue}>
@@ -273,7 +284,7 @@ function BoardColumn(props: {
             )}
           >
             <div
-              class="inline-flex w-full select-none flex-row items-center justify-between px-2 text-secondary-foreground"
+              class="inline-flex w-full select-none flex-row items-center justify-between gap-2 px-2 text-secondary-foreground"
               style={{
                 "padding-block-start": "0.5rem",
               }}
@@ -285,7 +296,36 @@ function BoardColumn(props: {
                 <GripVertical size="1.5rem" />
               </div>
 
-              <h3 class="text-lg font-semibold">{props.column.text}</h3>
+              <Show
+                when={editingColumn()}
+                fallback={
+                  <h3
+                    class="grow cursor-text text-lg font-semibold"
+                    onClick={() => {
+                      setEditingColumn(true);
+                      columnTextInput.focus();
+                    }}
+                  >
+                    {props.column.text}
+                  </h3>
+                }
+              >
+                <TextField
+                  class="grow"
+                  disabled={!editingColumn()}
+                  value={columnText()}
+                  onChange={setColumnText}
+                  onFocusOut={onFocusOut}
+                >
+                  <TextFieldInput
+                    class="text-lg font-semibold"
+                    type="text"
+                    ref={columnTextInput}
+                    minLength={1}
+                    maxLength={50}
+                  />
+                </TextField>
+              </Show>
 
               <ActionMenu
                 onDelete={props.onDelete}
@@ -313,19 +353,19 @@ function BoardColumn(props: {
               onSubmit={(e) => {
                 e.preventDefault();
 
-                if (itemText().length) {
-                  boardCtx.addBoardItem({
+                if (newItemText().length) {
+                  boardCtx.addCard({
                     id: publicId(),
-                    text: itemText(),
+                    text: newItemText(),
                     columnId: props.column.publicId,
                   });
-                  setItemText("");
+                  setNewItemText("");
 
                   scroll(scrollableRef, "down");
                 }
               }}
             >
-              <TextField value={itemText()} onChange={setItemText}>
+              <TextField value={newItemText()} onChange={setNewItemText}>
                 <TextFieldInput type="text" minLength={1} maxLength={50} />
               </TextField>
 
@@ -333,7 +373,7 @@ function BoardColumn(props: {
                 type="submit"
                 size="icon"
                 class="w-full"
-                disabled={!itemText().length}
+                disabled={!newItemText().length}
               >
                 <Plus />
               </Button>
@@ -733,11 +773,17 @@ export function Board(props: {
       }
     },
     instanceId,
-    addBoardItem(item) {
+    addCard(item) {
       props.onItemCreated({
         columnPublicId: item.columnId,
         text: item.text,
       });
+    },
+    updateCardText(item) {
+      props.onItemsUpdated([item]);
+    },
+    updateColumnText(column) {
+      props.onColumnsUpdated([column]);
     },
   };
 

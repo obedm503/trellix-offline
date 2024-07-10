@@ -27,7 +27,9 @@ export type BoardContextValue = {
     itemIndexInStartColumn: number;
     itemIndexInFinishColumn?: number;
   }) => void;
-  addBoardItem(item: { id: string; text: string; columnId: string }): void;
+  addCard(item: { id: string; text: string; columnId: string }): void;
+  updateCardText(item: Item): void;
+  updateColumnText(column: Column): void;
   instanceId: symbol;
 };
 
