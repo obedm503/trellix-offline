@@ -18,13 +18,14 @@ const schema = z.array(
       public_id: PUBLIC_ID_SCHEMA,
       column: z.string(),
       text: z.string().min(1).max(60),
+      order: z.number().min(0),
     }),
     z.object({
       _op: z.literal("update"),
       id: z.string(),
       column: z.string().optional(),
       text: z.string().min(1).max(60).optional(),
-      order: z.number().optional(),
+      order: z.number().min(0).optional(),
     }),
     z.object({
       _op: z.literal("delete"),
@@ -58,32 +59,16 @@ export async function mutate(inputs: BoardItemInputs) {
       ),
   );
 
-  const createItems = items.filter((item) => item._op === "create");
-  const createItemsColumns = Array.from(
-    new Set(createItems.map((item) => item.column)),
-  );
-  const greatestInColumn = Object.fromEntries(
-    await Promise.all(
-      createItemsColumns.map(async (column) => {
-        const last = await pb
-          .collection<BoardItem>("board_item")
-          .getList(1, 1, {
-            filter: `column = "${column}"`,
-            sort: "-order",
-          });
-        return [column, last.items.at(0)?.order ?? 0] as const;
-      }),
-    ),
-  );
   const created = await Promise.all(
-    createItems.map((item, i) =>
-      pb.collection<BoardItem>("board_item").create({
-        ...omit(item, "_op"),
-        id: pocketbaseId(),
-        created_by: user.id,
-        order: greatestInColumn[item.column] + i,
-      }),
-    ),
+    items
+      .filter((item) => item._op === "create")
+      .map((item, i) =>
+        pb.collection<BoardItem>("board_item").create({
+          ...omit(item, "_op"),
+          id: pocketbaseId(),
+          created_by: user.id,
+        }),
+      ),
   );
 
   return [...created, ...updated].sort((a, b) => {

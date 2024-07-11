@@ -41,6 +41,7 @@ export default function Lists() {
                   id: pocketbaseId(),
                   name: listName(),
                   public_id: publicId(),
+                  order: lists().length,
                 } as any);
 
                 setListName("");

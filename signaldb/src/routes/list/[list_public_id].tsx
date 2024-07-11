@@ -59,6 +59,7 @@ export default function ListDetail(props: RouteSectionProps) {
                   text: listItemText(),
                   public_id: publicId(),
                   expand: { list: { public_id: list_public_id() } },
+                  order: list_items().length,
                 } as any);
 
                 setListItemText("");

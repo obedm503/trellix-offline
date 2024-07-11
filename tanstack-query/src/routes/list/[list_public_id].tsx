@@ -72,6 +72,7 @@ export default function ListDetail(props: RouteSectionProps) {
                       _op: "create",
                       text: listItemText(),
                       public_id: publicId(),
+                      order: list_items.data?.length ?? 0,
                     },
                   ]),
                 );

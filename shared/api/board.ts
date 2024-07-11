@@ -17,12 +17,13 @@ const schema = z.array(
       _op: z.literal("create"),
       public_id: PUBLIC_ID_SCHEMA,
       name: z.string().min(1).max(50),
+      order: z.number().min(0),
     }),
     z.object({
       _op: z.literal("update"),
       id: z.string(),
       name: z.string().min(1).max(50).optional(),
-      order: z.number().optional(),
+      order: z.number().min(0).optional(),
     }),
     z.object({
       _op: z.literal("delete"),
@@ -36,11 +37,6 @@ export async function mutate(inputs: BoardInputs) {
   if (!user) {
     throw new Error("Unauthorized");
   }
-
-  const last = await pb.collection<Board>("board").getList(1, 1, {
-    sort: "-order",
-  });
-  const greatestOrder = last.items.at(0)?.order ?? 0;
 
   const items = schema.parse(inputs);
 
@@ -66,7 +62,6 @@ export async function mutate(inputs: BoardInputs) {
           ...omit(item, "_op"),
           id: pocketbaseId(),
           created_by: user.id,
-          order: greatestOrder + i,
         }),
       ),
   );

@@ -46,6 +46,7 @@ export default function Lists() {
                       _op: "create",
                       name: listName(),
                       public_id: publicId(),
+                      order: lists.data?.length ?? 0,
                     },
                   ]),
                 );

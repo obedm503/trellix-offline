@@ -30,18 +30,6 @@ export default function Boards(props: RouteSectionProps) {
     boards.data?.find((item) => item.public_id === board_public_id()),
   );
 
-  const columns = getBoardColumns(board_public_id);
-  const columnMap = createMemo(() => {
-    const map = {} as Record<string, BoardColumn>;
-    for (const item of columns.data ?? []) {
-      map[item.id] = item;
-      map[item.public_id] = item;
-    }
-    return map;
-  });
-
-  const saveColumn = mutateBoardColumns(board_public_id, () => board()!.id);
-
   const items = getBoardItems(board_public_id);
 
   const itemMap = createMemo(() => {
@@ -53,6 +41,22 @@ export default function Boards(props: RouteSectionProps) {
   });
 
   const saveItem = mutateBoardItems(board_public_id);
+
+  const columns = getBoardColumns(board_public_id);
+  const columnMap = createMemo(() => {
+    const map = {} as Record<string, BoardColumn & { _items: BoardItem[] }>;
+    for (const item of columns.data ?? []) {
+      const col = {
+        ...item,
+        _items: items.data?.filter((el) => el.column === item.id) ?? [],
+      };
+      map[item.id] = col;
+      map[item.public_id] = col;
+    }
+    return map;
+  });
+
+  const saveColumn = mutateBoardColumns(board_public_id, () => board()!.id);
 
   const cols = createMemo(
     () =>
@@ -96,6 +100,7 @@ export default function Boards(props: RouteSectionProps) {
                 text: item.text,
                 public_id: publicId(),
                 column: columnMap()[item.columnPublicId].id,
+                order: columnMap()[item.columnPublicId]._items.length,
               },
             ]),
           );
@@ -137,6 +142,7 @@ export default function Boards(props: RouteSectionProps) {
                 board: board()!.id,
                 name: col.text,
                 public_id: publicId(),
+                order: cols().length,
               },
             ]),
           );

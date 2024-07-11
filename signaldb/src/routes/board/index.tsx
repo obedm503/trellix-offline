@@ -39,6 +39,7 @@ export default function Boards() {
                   id: pocketbaseId(),
                   name: name(),
                   public_id: publicId(),
+                  order: boards().length,
                 } as any);
 
                 setName("");

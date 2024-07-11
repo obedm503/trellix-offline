@@ -44,6 +44,7 @@ export default function Boards() {
                       _op: "create",
                       name: name(),
                       public_id: publicId(),
+                      order: boards.data?.length ?? 0,
                     },
                   ]),
                 );

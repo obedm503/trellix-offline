@@ -17,7 +17,7 @@ const schema = z.array(
       _op: z.literal("create"),
       public_id: PUBLIC_ID_SCHEMA,
       text: z.string().min(1).max(60),
-      order: z.number().min(0).optional(),
+      order: z.number().min(0),
       done: z.boolean().optional(),
     }),
     z.object({
@@ -39,11 +39,7 @@ export async function mutate(listId: string, inputs: ListItemInputs) {
   if (!user) {
     throw new Error("Unauthorized");
   }
-  const last = await pb.collection<ListItem>("list_item").getList(1, 1, {
-    filter: `list = "${listId}"`,
-    sort: "-order",
-  });
-  const greatestOrder = last.items.at(0)?.order ?? 0;
+
   const items = schema.parse(inputs);
   await Promise.all(
     items
@@ -70,7 +66,6 @@ export async function mutate(listId: string, inputs: ListItemInputs) {
           list: listId,
           id: pocketbaseId(),
           created_by: user.id,
-          order: greatestOrder + i,
         }),
       ),
   );
