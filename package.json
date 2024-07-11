@@ -4,15 +4,13 @@
     "@atlaskit/pragmatic-drag-and-drop-auto-scroll": "^1.4.0",
     "@atlaskit/pragmatic-drag-and-drop-flourish": "^1.1.0",
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.0.3",
-    "@hono/zod-validator": "^0.2.2",
     "@kobalte/core": "^0.13.3",
     "@lucide/lab": "^0.1.2",
     "@normy/core": "^0.10.0",
     "@solidjs/router": "^0.14.1",
-    "@solidjs/start": "^1.0.2",
     "@tailwindcss/typography": "^0.5.13",
-    "@tanstack/solid-query": "^5.50.2",
-    "@tanstack/solid-query-persist-client": "^5.50.2",
+    "@tanstack/solid-query": "^5.51.2",
+    "@tanstack/solid-query-persist-client": "^5.51.2",
     "@types/lodash-es": "^4.17.12",
     "autoprefixer": "^10.4.19",
     "class-variance-authority": "^0.7.0",
@@ -26,13 +24,12 @@
     "prettier": "^3.3.2",
     "prettier-plugin-tailwindcss": "^0.6.5",
     "serve": "^14.2.3",
-    "signaldb": "^0.12.0",
+    "signaldb": "^0.12.1",
     "solid-js": "^1.8.18",
     "tailwind-merge": "^2.4.0",
     "tailwindcss": "^3.4.4",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.5.3",
-    "vinxi": "^0.3.12",
     "vite": "^5.3.3",
     "vite-plugin-markdown": "^2.2.0",
     "vite-plugin-pwa": "^0.20.0",
@@ -44,7 +41,6 @@
   },
   "type": "module",
   "workspaces": [
-    "shared",
-    "tanstack-query"
+    "shared"
   ]
 }
