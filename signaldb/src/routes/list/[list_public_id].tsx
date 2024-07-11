@@ -90,7 +90,10 @@ export default function ListDetail(props: RouteSectionProps) {
           find={(item, target) => item.public_id === target.public_id}
           delete={async (item) => {
             if (!!item.id) {
-              collections.list_item.removeOne({ id: item.id });
+              collections.list_item.updateOne(
+                { id: item.id },
+                { $set: { deleted: true } },
+              );
             }
           }}
           update={async (items) => {

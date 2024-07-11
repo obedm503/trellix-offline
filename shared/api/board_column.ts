@@ -6,7 +6,7 @@ import { BoardColumn, User } from "./schema";
 
 export async function get(board_public_id: string) {
   return await pb.collection<BoardColumn>("board_column").getFullList({
-    filter: `board.public_id = "${board_public_id}"`,
+    filter: `deleted != true && board.public_id = "${board_public_id}"`,
     sort: "order,created",
   });
 }

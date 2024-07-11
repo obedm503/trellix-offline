@@ -70,7 +70,10 @@ export default function Boards() {
           find={(item, target) => item.public_id === target.public_id}
           delete={async (item) => {
             if (item.id) {
-              collections.board.removeOne({ id: item.id });
+              collections.board.updateOne(
+                { id: item.id },
+                { $set: { deleted: true } },
+              );
             }
           }}
           update={async (items) => {

@@ -6,7 +6,7 @@ import { ListItem, User } from "./schema";
 
 export async function get(list_public_id: string) {
   return await pb.collection<ListItem>("list_item").getFullList({
-    filter: `list.public_id = "${list_public_id}"`,
+    filter: `deleted != true && list.public_id = "${list_public_id}"`,
     sort: "order,created",
   });
 }

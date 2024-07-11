@@ -118,7 +118,10 @@ export default function Boards(props: RouteSectionProps) {
           }
         }}
         onItemDeleted={(itemId) => {
-          collections.board_item.removeOne({ id: itemMap()[itemId].id });
+          collections.board_item.updateOne(
+            { id: itemMap()[itemId].id },
+            { $set: { deleted: true } },
+          );
         }}
         onColumnCreated={(col) => {
           collections.board_column.insert({
@@ -141,7 +144,10 @@ export default function Boards(props: RouteSectionProps) {
           }
         }}
         onColumnDeleted={(columnId) => {
-          collections.board_column.removeOne({ id: columnMap()[columnId].id });
+          collections.board_column.updateOne(
+            { id: columnMap()[columnId].id },
+            { $set: { deleted: true } },
+          );
         }}
       />
     </main>

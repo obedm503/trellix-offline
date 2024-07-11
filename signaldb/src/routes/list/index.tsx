@@ -68,11 +68,14 @@ export default function Lists() {
       {(props) => (
         <ReorderList
           list={lists()}
-          canDelete={(item) => !item.id}
+          canDelete={(item) => !!item.id}
           find={(item, target) => item.public_id === target.public_id}
           delete={async (item) => {
             if (item.id) {
-              collections.list.removeOne({ id: item.id });
+              collections.list.updateOne(
+                { id: item.id },
+                { $set: { deleted: true } },
+              );
             }
           }}
           update={async (items) => {

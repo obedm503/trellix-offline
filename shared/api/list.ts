@@ -7,6 +7,7 @@ import { omit } from "lodash-es";
 export async function get() {
   return await pb.collection<List>("list").getFullList({
     sort: "order,created",
+    filter: "deleted != true",
   });
 }
 

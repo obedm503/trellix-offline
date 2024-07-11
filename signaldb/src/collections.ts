@@ -46,7 +46,7 @@ function errorHandler(error: Error) {
   });
 }
 
-export const board = new Collection<Board>({
+const board = new Collection<Board>({
   memory: [],
   reactivity,
   persistence: combinePersistenceAdapters(
@@ -55,7 +55,7 @@ export const board = new Collection<Board>({
   ),
 }).on("persistence.error", errorHandler);
 
-export const board_column = new Collection<
+const board_column = new Collection<
   BoardColumn & { expand: { board: { public_id: string } } }
 >({
   memory: [],
@@ -69,7 +69,7 @@ export const board_column = new Collection<
   ),
 }).on("persistence.error", errorHandler);
 
-export const board_item = new Collection<
+const board_item = new Collection<
   BoardItem & {
     expand: { column: { expand: { board: { public_id: string } } } };
   }
@@ -89,7 +89,7 @@ export const board_item = new Collection<
   ),
 }).on("persistence.error", errorHandler);
 
-export const list = new Collection<List>({
+const list = new Collection<List>({
   memory: [],
   reactivity,
   persistence: combinePersistenceAdapters(
@@ -98,7 +98,7 @@ export const list = new Collection<List>({
   ),
 }).on("persistence.error", errorHandler);
 
-export const list_item = new Collection<
+const list_item = new Collection<
   ListItem & { expand: { list: { public_id: string } } }
 >({
   memory: [],

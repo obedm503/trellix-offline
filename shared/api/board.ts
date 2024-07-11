@@ -7,6 +7,7 @@ import { Board, User } from "./schema";
 export async function get() {
   return await pb.collection<Board>("board").getFullList({
     sort: "order,created",
+    filter: "deleted != true",
   });
 }
 
