@@ -112,10 +112,10 @@ export default function ListDetail(props: RouteSectionProps) {
           {(props) => {
             const [text, setText] = createSignal(props.item.text);
             function onFocusOut() {
-              if (props.item.text !== text()) {
+              if (props.item.text !== text().trim()) {
                 collections.list_item.updateOne(
                   { id: props.item.id },
-                  { $set: { text: text() } },
+                  { $set: { text: text().trim() } },
                 );
               }
             }

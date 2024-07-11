@@ -183,7 +183,7 @@ function LazyDropdownItems(props: {
       <DropdownMenuItem
         as="button"
         type="button"
-        class="cursor-pointer text-destructive focus:text-destructive/90"
+        class="text-destructive focus:text-destructive/90 cursor-pointer"
         disabled={!props.canDelete}
         onClick={props.onDelete}
       >
@@ -207,15 +207,15 @@ function CardPrimitive(props: {
   const [editing, setEditing] = createSignal(false);
   const [text, setText] = createSignal(props.item.text);
   function onFocusOut() {
-    if (props.item.text !== text()) {
-      props.onTextChange(text());
+    if (props.item.text !== text().trim()) {
+      props.onTextChange(text().trim());
     }
 
     setEditing(false);
   }
 
   return (
-    <div class="relative border-b border-secondary last:border-b-0">
+    <div class="border-secondary relative border-b last:border-b-0">
       <div
         ref={props.dropTarget}
         data-board={
@@ -224,7 +224,7 @@ function CardPrimitive(props: {
             : "item:" + props.item.publicId
         }
         class={cn(
-          "flex flex-row items-center justify-between gap-2 bg-background p-4 py-2",
+          "bg-background flex flex-row items-center justify-between gap-2 p-4 py-2",
           props.state.type === "preview" ? "rounded-lg border shadow" : "",
         )}
       >

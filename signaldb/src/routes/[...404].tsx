@@ -6,7 +6,7 @@ export default function NotFound() {
 
   return (
     <main class="mx-auto my-auto p-4 text-center text-gray-700">
-      <Button variant="link" class="text-xl block" onClick={() => navigate(-1)}>
+      <Button variant="link" class="block text-xl" onClick={() => navigate(-1)}>
         You should go back.
       </Button>
 

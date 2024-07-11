@@ -5,10 +5,9 @@ import { createPersistenceAdapter } from "signaldb";
  * Creates an Indexed DB persister
  * @see https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
  */
-export function idbPersister<
-  T extends { id: I } & Record<string, any>,
-  I,
->(name: string) {
+export function idbPersister<T extends { id: I } & Record<string, any>, I>(
+  name: string,
+) {
   const collectionId = `signaldb-collection-${name}`;
   async function getItems(): Promise<T[]> {
     const items = (await get(collectionId)) || [];

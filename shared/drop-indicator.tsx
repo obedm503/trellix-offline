@@ -53,7 +53,7 @@ export function DropIndicator(props: {
         } as JSX.CSSProperties
       }
       class={cn(
-        "pointer-events-none absolute z-10 box-border bg-primary before:absolute before:h-[--terminal-size] before:w-[--terminal-size] before:rounded-full before:border-[length:--line-thickness] before:border-solid before:border-primary before:content-['']",
+        "bg-primary before:border-primary pointer-events-none absolute z-10 box-border before:absolute before:h-[--terminal-size] before:w-[--terminal-size] before:rounded-full before:border-[length:--line-thickness] before:border-solid before:content-['']",
         orientationStyles[edgeToOrientationMap[props.edge]],
         edgeStyles[props.edge],
         props.class,

@@ -253,8 +253,8 @@ function BoardColumn(props: {
   const [editingColumn, setEditingColumn] = createSignal(false);
   const [columnText, setColumnText] = createSignal(props.column.text);
   function onFocusOut() {
-    if (props.column.text !== columnText()) {
-      boardCtx.updateColumnText({ ...props.column, text: columnText() });
+    if (props.column.text !== columnText().trim()) {
+      boardCtx.updateColumnText({ ...props.column, text: columnText().trim() });
     }
 
     setEditingColumn(false);
@@ -284,7 +284,7 @@ function BoardColumn(props: {
             )}
           >
             <div
-              class="inline-flex w-full select-none flex-row items-center justify-between gap-2 px-2 text-secondary-foreground"
+              class="text-secondary-foreground inline-flex w-full select-none flex-row items-center justify-between gap-2 px-2"
               style={{
                 "padding-block-start": "0.5rem",
               }}
@@ -401,7 +401,7 @@ function SafariColumnPreview(props: { column: BoardColumn }) {
       style={{
         "padding-block-start": "0.25rem",
       }}
-      class="w-72 select-none rounded-lg border bg-secondary p-2 pe-2 ps-2 text-secondary-foreground"
+      class="bg-secondary text-secondary-foreground w-72 select-none rounded-lg border p-2 pe-2 ps-2"
     >
       <div>
         <GripVertical size="1.5rem" />
@@ -477,7 +477,7 @@ function ActionMenu(props: { canDelete: boolean; onDelete(): void }) {
         <DropdownMenuItem
           as="button"
           type="button"
-          class="cursor-pointer text-destructive focus:text-destructive/90"
+          class="text-destructive focus:text-destructive/90 cursor-pointer"
           disabled={!props.canDelete}
           onClick={props.onDelete}
         >

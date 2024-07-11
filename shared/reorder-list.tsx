@@ -197,7 +197,7 @@ function MoveDropdown(props: {
         <DropdownMenuItem
           as="button"
           type="button"
-          class="cursor-pointer text-destructive focus:text-destructive/90"
+          class="text-destructive focus:text-destructive/90 cursor-pointer"
           disabled={!props.canDelete}
           onClick={props.onDelete}
         >
@@ -381,7 +381,7 @@ function ReorderListItem<T>(props: {
 
   return (
     <>
-      <div class="relative border-b border-secondary last:border-b-0">
+      <div class="border-secondary relative border-b last:border-b-0">
         <div
           ref={dropTarget}
           data-reorder-item-id={props.itemId}
@@ -502,7 +502,7 @@ export function ReorderList<T>(props: {
     <For
       each={props.list}
       fallback={
-        <p class="text-center text-muted-foreground">No items in this list.</p>
+        <p class="text-muted-foreground text-center">No items in this list.</p>
       }
     >
       {(item, index) => (

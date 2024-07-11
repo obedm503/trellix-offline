@@ -122,7 +122,7 @@ export default function Boards() {
                 return (
                   <>
                     <Button
-                      class="h-10 w-10 border-primary text-xs text-primary hover:text-primary/90"
+                      class="border-primary text-primary hover:text-primary/90 h-10 w-10 text-xs"
                       variant="outline"
                       size="icon"
                       as="a"
