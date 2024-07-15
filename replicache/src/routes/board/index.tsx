@@ -49,7 +49,7 @@ export default function Boards() {
               e.preventDefault();
 
               if (name().length) {
-                await rep.mutate.board([
+                await rep().mutate.board([
                   {
                     _op: "create",
                     id: pocketbaseId(),
@@ -89,13 +89,13 @@ export default function Boards() {
           find={(item, target) => item.public_id === target.public_id}
           delete={async (item) => {
             if (item.id) {
-              await rep.mutate.board([{ _op: "delete", id: item.id }]);
+              await rep().mutate.board([{ _op: "delete", id: item.id }]);
             }
           }}
           update={async (items) => {
             const list = items.filter((item) => !!item.id);
 
-            await rep.mutate.board(
+            await rep().mutate.board(
               list.map((item, i) => ({ _op: "update", id: item.id, order: i })),
             );
           }}
@@ -106,7 +106,7 @@ export default function Boards() {
             const [text, setText] = createSignal(props.item.name);
             async function onFocusOut() {
               if (props.item.name !== text().trim()) {
-                await rep.mutate.board([
+                await rep().mutate.board([
                   { _op: "update", id: props.item.id, name: text().trim() },
                 ]);
               }

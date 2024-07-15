@@ -69,7 +69,7 @@ export default function ListDetail(props: RouteSectionProps) {
               e.preventDefault();
 
               if (listItemText().length) {
-                await rep.mutate.list_item([
+                await rep().mutate.list_item([
                   {
                     _op: "create",
                     id: pocketbaseId(),
@@ -110,12 +110,12 @@ export default function ListDetail(props: RouteSectionProps) {
           find={(item, target) => item.public_id === target.public_id}
           delete={async (item) => {
             if (!!item.id) {
-              await rep.mutate.list_item([{ _op: "delete", id: item.id }]);
+              await rep().mutate.list_item([{ _op: "delete", id: item.id }]);
             }
           }}
           update={async (items) => {
             const list = items.filter((item) => !!item.id);
-            await rep.mutate.list_item(
+            await rep().mutate.list_item(
               list.map((item, i) => ({ _op: "update", id: item.id, order: i })),
             );
           }}
@@ -126,7 +126,7 @@ export default function ListDetail(props: RouteSectionProps) {
             const [text, setText] = createSignal(props.item.text);
             async function onFocusOut() {
               if (props.item.text !== text().trim()) {
-                await rep.mutate.list_item([
+                await rep().mutate.list_item([
                   { _op: "update", id: props.item.id, text: text().trim() },
                 ]);
               }
@@ -140,7 +140,7 @@ export default function ListDetail(props: RouteSectionProps) {
                   checked={!!props.item.done}
                   onChange={async (checked) => {
                     if (!!props.item.id) {
-                      await rep.mutate.list_item([
+                      await rep().mutate.list_item([
                         { _op: "update", id: props.item.id, done: checked },
                       ]);
                     }

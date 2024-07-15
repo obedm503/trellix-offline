@@ -125,7 +125,7 @@ export default function Boards(props: RouteSectionProps) {
         items={rows()}
         onItemCreated={async (item) => {
           const col = columnMap()[item.columnPublicId];
-          await rep.mutate.board_item([
+          await rep().mutate.board_item([
             {
               _op: "create",
               id: pocketbaseId(),
@@ -138,7 +138,7 @@ export default function Boards(props: RouteSectionProps) {
           ]);
         }}
         onItemsUpdated={async (updated) => {
-          await rep.mutate.board_item(
+          await rep().mutate.board_item(
             updated.map((item) => ({
               _op: "update",
               id: itemMap()[item.publicId].id,
@@ -149,12 +149,12 @@ export default function Boards(props: RouteSectionProps) {
           );
         }}
         onItemDeleted={async (itemId) => {
-          await rep.mutate.board_item([
+          await rep().mutate.board_item([
             { _op: "delete", id: itemMap()[itemId].id },
           ]);
         }}
         onColumnCreated={async (col) => {
-          await rep.mutate.board_column([
+          await rep().mutate.board_column([
             {
               _op: "create",
               id: pocketbaseId(),
@@ -169,7 +169,7 @@ export default function Boards(props: RouteSectionProps) {
           scroll(xScrollable, "right");
         }}
         onColumnsUpdated={async (updated) => {
-          await rep.mutate.board_column(
+          await rep().mutate.board_column(
             updated.map((item) => ({
               _op: "update",
               id: columnMap()[item.publicId].id,
@@ -179,7 +179,7 @@ export default function Boards(props: RouteSectionProps) {
           );
         }}
         onColumnDeleted={async (columnId) => {
-          await rep.mutate.board_column([
+          await rep().mutate.board_column([
             { _op: "delete", id: columnMap()[columnId].id },
           ]);
         }}

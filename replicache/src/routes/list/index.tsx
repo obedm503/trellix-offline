@@ -46,7 +46,7 @@ export default function Lists() {
               e.preventDefault();
 
               if (listName().length) {
-                await rep.mutate.list([
+                await rep().mutate.list([
                   {
                     _op: "create",
                     id: pocketbaseId(),
@@ -86,12 +86,12 @@ export default function Lists() {
           find={(item, target) => item.public_id === target.public_id}
           delete={async (item) => {
             if (item.id) {
-              await rep.mutate.list([{ _op: "delete", id: item.id }]);
+              await rep().mutate.list([{ _op: "delete", id: item.id }]);
             }
           }}
           update={async (items) => {
             const list = items.filter((item) => !!item.id);
-            await rep.mutate.list(
+            await rep().mutate.list(
               list.map((item, i) => ({
                 _op: "update",
                 id: item.id,
@@ -106,7 +106,7 @@ export default function Lists() {
             const [text, setText] = createSignal(props.item.name);
             async function onFocusOut() {
               if (props.item.name !== text().trim()) {
-                await rep.mutate.list([
+                await rep().mutate.list([
                   { _op: "update", id: props.item.id, name: text().trim() },
                 ]);
               }

@@ -14,13 +14,17 @@ import {
 } from "solid-js";
 import { type Mutators, mutators } from "./mutators";
 
-const ReplicacheContext = createContext<Replicache<Mutators> | undefined>();
+const ReplicacheContext =
+  createContext<Accessor<Replicache<Mutators> | undefined>>();
 export function useReplicache() {
   const rep = useContext(ReplicacheContext);
-  if (!rep) {
-    throw new Error("Unauthorized");
-  }
-  return rep;
+  return () => {
+    if (!rep || !rep()) {
+      throw new Error("Unauthorized");
+    }
+
+    return rep()!;
+  };
 }
 
 export function ReplicacheProvider(props: { children: JSXElement }) {
@@ -81,7 +85,7 @@ export function ReplicacheProvider(props: { children: JSXElement }) {
   );
 
   return (
-    <ReplicacheContext.Provider value={rep()}>
+    <ReplicacheContext.Provider value={rep}>
       {props.children}
     </ReplicacheContext.Provider>
   );
@@ -104,7 +108,7 @@ export function createSubscribe<T, R>(
 
   createEffect(() => {
     onCleanup(
-      rep.subscribe<T>(read, (value) => {
+      rep().subscribe<T>(read, (value) => {
         set(() => value);
       }),
     );
