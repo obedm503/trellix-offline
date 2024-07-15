@@ -1,7 +1,7 @@
 import Link from "lucide-solid/icons/link";
 import Plus from "lucide-solid/icons/plus";
 import { getUser } from "shared/api/auth";
-import { publicId } from "shared/nanoid";
+import { pocketbaseId, publicId } from "shared/nanoid";
 import { ReorderList } from "shared/reorder-list";
 import { ScrollableCardLayout } from "shared/scrollable-card-layout";
 import { Button } from "shared/ui/button";
@@ -45,8 +45,9 @@ export default function Boards() {
                   save.mutateAsync([
                     {
                       _op: "create",
-                      name: name(),
+                      id: pocketbaseId(),
                       public_id: publicId(),
+                      name: name(),
                       order: boards.data?.length ?? 0,
                       created_by: user()!.id,
                     },

@@ -1,7 +1,7 @@
 import { RouteSectionProps } from "@solidjs/router";
 import Plus from "lucide-solid/icons/plus";
 import { getUser } from "shared/api/auth";
-import { publicId } from "shared/nanoid";
+import { pocketbaseId, publicId } from "shared/nanoid";
 import { ReorderList } from "shared/reorder-list";
 import { ScrollableCardLayout } from "shared/scrollable-card-layout";
 import { Button } from "shared/ui/button";
@@ -73,8 +73,9 @@ export default function ListDetail(props: RouteSectionProps) {
                   save.mutateAsync([
                     {
                       _op: "create",
-                      text: listItemText(),
+                      id: pocketbaseId(),
                       public_id: publicId(),
+                      text: listItemText(),
                       order: list_items.data?.length ?? 0,
                       list: list()!.id,
                       created_by: user()!.id,

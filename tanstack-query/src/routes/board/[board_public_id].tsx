@@ -3,7 +3,7 @@ import { getUser } from "shared/api/auth";
 import type { BoardColumn, BoardItem } from "shared/api/schema";
 import { Board } from "shared/board";
 import type { Column, Item } from "shared/board/context";
-import { publicId } from "shared/nanoid";
+import { pocketbaseId, publicId } from "shared/nanoid";
 import { scroll } from "shared/scrollable-card-layout";
 import { showToast } from "shared/utils";
 import { createEffect, createMemo, onCleanup } from "solid-js";
@@ -100,8 +100,9 @@ export default function Boards(props: RouteSectionProps) {
             saveItem.mutateAsync([
               {
                 _op: "create",
-                text: item.text,
+                id: pocketbaseId(),
                 public_id: publicId(),
+                text: item.text,
                 column: columnMap()[item.columnPublicId].id,
                 order: columnMap()[item.columnPublicId]._items.length,
                 created_by: user()!.id,
@@ -143,9 +144,10 @@ export default function Boards(props: RouteSectionProps) {
             saveColumn.mutateAsync([
               {
                 _op: "create",
+                id: pocketbaseId(),
+                public_id: publicId(),
                 board: board()!.id,
                 name: col.text,
-                public_id: publicId(),
                 order: cols().length,
                 created_by: user()!.id,
               },

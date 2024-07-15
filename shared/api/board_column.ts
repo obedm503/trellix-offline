@@ -1,11 +1,7 @@
 import { omit } from "lodash-es";
 import type Pocketbase from "pocketbase";
 import { z } from "zod";
-import {
-  POCKETBASE_ID_SCHEMA,
-  pocketbaseId,
-  PUBLIC_ID_SCHEMA,
-} from "../nanoid";
+import { POCKETBASE_ID_SCHEMA, PUBLIC_ID_SCHEMA } from "../nanoid";
 import type { BoardColumn } from "./schema";
 
 export async function get(pb: Pocketbase, board_public_id: string) {
@@ -19,6 +15,7 @@ export const schema = z.array(
   z.discriminatedUnion("_op", [
     z.object({
       _op: z.literal("create"),
+      id: POCKETBASE_ID_SCHEMA,
       public_id: PUBLIC_ID_SCHEMA,
       name: z.string().min(1).max(50),
       board: POCKETBASE_ID_SCHEMA,
@@ -60,11 +57,8 @@ export async function mutate(pb: Pocketbase, inputs: BoardColumnInputs) {
   const created = await Promise.all(
     items
       .filter((item) => item._op === "create")
-      .map((item, i) =>
-        pb.collection<BoardColumn>("board_column").create({
-          ...omit(item, "_op"),
-          id: pocketbaseId(),
-        }),
+      .map((item) =>
+        pb.collection<BoardColumn>("board_column").create(omit(item, "_op")),
       ),
   );
   return [...deleted, ...created, ...updated].sort((a, b) => {
