@@ -29,7 +29,6 @@ export function pocketbaseReplication<
       const unsub = await pb.collection<T>(collectionName).subscribe(
         "*",
         (e) => {
-          console.log(collectionName, e);
           if (e.action === "update") {
             void onChange({
               changes: { modified: [e.record], added: [], removed: [] },

@@ -17,7 +17,7 @@ export const schema = z.array(
       _op: z.literal("create"),
       id: POCKETBASE_ID_SCHEMA,
       public_id: PUBLIC_ID_SCHEMA,
-      name: z.string().min(1).max(50),
+      name: z.string().min(1).max(60),
       board: POCKETBASE_ID_SCHEMA,
       order: z.number().min(0),
       created_by: POCKETBASE_ID_SCHEMA,
@@ -26,7 +26,7 @@ export const schema = z.array(
       _op: z.literal("update"),
       id: z.string(),
       board: POCKETBASE_ID_SCHEMA.optional(),
-      name: z.string().min(1).max(50).optional(),
+      name: z.string().min(1).max(60).optional(),
       order: z.number().min(0).optional(),
     }),
     z.object({

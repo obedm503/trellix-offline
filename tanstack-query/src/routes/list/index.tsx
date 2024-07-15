@@ -1,15 +1,10 @@
 import Link from "lucide-solid/icons/link";
-import Plus from "lucide-solid/icons/plus";
 import { getUser } from "shared/api/auth";
 import { pocketbaseId, publicId } from "shared/nanoid";
 import { ReorderList } from "shared/reorder-list";
 import { ScrollableCardLayout } from "shared/scrollable-card-layout";
 import { Button } from "shared/ui/button";
-import {
-  TextField,
-  TextFieldErrorMessage,
-  TextFieldInput,
-} from "shared/ui/text-field";
+import { TextField, TextFieldInput } from "shared/ui/text-field";
 import { showToast } from "shared/utils";
 import { createEffect, createSignal, Match, onCleanup, Switch } from "solid-js";
 import { getLists, mutateLists } from "../../queries";
@@ -32,53 +27,19 @@ export default function Lists() {
   return (
     <ScrollableCardLayout
       title="Lists"
-      footer={(props) => {
-        const [listName, setListName] = createSignal("");
-        return (
-          <form
-            class="flex w-full flex-col gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-
-              if (listName().length) {
-                showToast(
-                  save.mutateAsync([
-                    {
-                      _op: "create",
-                      id: pocketbaseId(),
-                      public_id: publicId(),
-                      name: listName(),
-                      order: lists.data?.length ?? 0,
-                      created_by: user()!.id,
-                    },
-                  ]),
-                );
-                setListName("");
-
-                props.scroll("down");
-              }
-            }}
-          >
-            <TextField
-              value={listName()}
-              onChange={setListName}
-              validationState={save.error ? "invalid" : "valid"}
-            >
-              <TextFieldInput type="text" minLength={1} maxLength={50} />
-              <TextFieldErrorMessage>
-                {save.error?.message}
-              </TextFieldErrorMessage>
-            </TextField>
-
-            <Button
-              type="submit"
-              size="icon"
-              class="w-full"
-              disabled={!listName().length}
-            >
-              <Plus />
-            </Button>
-          </form>
+      addItemError={save.error?.message}
+      onAddItem={(name) => {
+        showToast(
+          save.mutateAsync([
+            {
+              _op: "create",
+              id: pocketbaseId(),
+              public_id: publicId(),
+              name,
+              order: lists.data?.length ?? 0,
+              created_by: user()!.id,
+            },
+          ]),
         );
       }}
     >
@@ -149,7 +110,7 @@ export default function Lists() {
                         class="disabled:cursor-default"
                         type="text"
                         minLength={1}
-                        maxLength={50}
+                        maxLength={60}
                       />
                     </TextField>
                   </>

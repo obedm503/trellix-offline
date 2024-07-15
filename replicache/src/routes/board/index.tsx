@@ -1,5 +1,4 @@
 import Link from "lucide-solid/icons/link";
-import Plus from "lucide-solid/icons/plus";
 import { getUser } from "shared/api/auth";
 import { Board } from "shared/api/schema";
 import { pocketbaseId, publicId } from "shared/nanoid";
@@ -40,46 +39,17 @@ export default function Boards() {
   return (
     <ScrollableCardLayout
       title="Boards"
-      footer={(props) => {
-        const [name, setName] = createSignal("");
-        return (
-          <form
-            class="flex w-full flex-col gap-2"
-            onSubmit={async (e) => {
-              e.preventDefault();
-
-              if (name().length) {
-                await rep().mutate.board([
-                  {
-                    _op: "create",
-                    id: pocketbaseId(),
-                    public_id: publicId(),
-                    name: name(),
-                    order: boards().length,
-                    created_by: user()!.id,
-                  },
-                ]);
-
-                setName("");
-
-                props.scroll("down");
-              }
-            }}
-          >
-            <TextField value={name()} onChange={setName}>
-              <TextFieldInput type="text" minLength={1} maxLength={50} />
-            </TextField>
-
-            <Button
-              type="submit"
-              size="icon"
-              class="w-full"
-              disabled={!name().length}
-            >
-              <Plus />
-            </Button>
-          </form>
-        );
+      onAddItem={async (name) => {
+        await rep().mutate.board([
+          {
+            _op: "create",
+            id: pocketbaseId(),
+            public_id: publicId(),
+            name,
+            order: boards().length,
+            created_by: user()!.id,
+          },
+        ]);
       }}
     >
       {(props) => (
@@ -136,7 +106,7 @@ export default function Boards() {
                     class="disabled:cursor-default"
                     type="text"
                     minLength={1}
-                    maxLength={50}
+                    maxLength={60}
                   />
                 </TextField>
               </>

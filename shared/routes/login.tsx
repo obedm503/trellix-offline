@@ -1,23 +1,23 @@
-import { useNavigate, type RouteSectionProps } from "@solidjs/router";
+import { RouteSectionProps, useNavigate } from "@solidjs/router";
 import { createMutation } from "@tanstack/solid-query";
-import * as auth from "shared/api/auth";
-import { Button } from "shared/ui/button";
+import { createEffect } from "solid-js";
+import * as auth from "../api/auth";
+import { Button } from "../ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "shared/ui/card";
+} from "../ui/card";
 import {
   TextField,
   TextFieldErrorMessage,
   TextFieldInput,
   TextFieldLabel,
-} from "shared/ui/text-field";
-import { createEffect } from "solid-js";
+} from "../ui/text-field";
 
-export default function Register(props: RouteSectionProps) {
+export default function LoginRoute(props: RouteSectionProps) {
   const navigate = useNavigate();
   const user = auth.getUser(false);
   createEffect(() => {
@@ -27,9 +27,9 @@ export default function Register(props: RouteSectionProps) {
     }
   });
 
-  const register = createMutation(() => ({
+  const login = createMutation(() => ({
     async mutationFn(data: FormData) {
-      await auth.register(
+      await auth.login(
         String(data.get("username")),
         String(data.get("password")),
       );
@@ -37,7 +37,7 @@ export default function Register(props: RouteSectionProps) {
     },
     onSuccess(success) {
       if (success) {
-        const redirectTo = props.params.redirectTo || "/";
+        const redirectTo = props.location.query.redirectTo || "/";
         navigate(redirectTo);
       }
     },
@@ -49,15 +49,15 @@ export default function Register(props: RouteSectionProps) {
         class="max-w-96"
         onSubmit={(e) => {
           e.preventDefault();
-          register.mutate(new FormData(e.currentTarget));
+          login.mutate(new FormData(e.currentTarget));
         }}
       >
         <Card>
           <CardHeader>
-            <CardTitle>Register</CardTitle>
+            <CardTitle>Login</CardTitle>
           </CardHeader>
           <CardContent>
-            <TextField validationState={register.error ? "invalid" : "valid"}>
+            <TextField validationState={login.error ? "invalid" : "valid"}>
               <TextFieldLabel>Username</TextFieldLabel>
               <TextFieldInput
                 name="username"
@@ -67,17 +67,17 @@ export default function Register(props: RouteSectionProps) {
                 maxLength={20}
               />
             </TextField>
-            <TextField validationState={register.error ? "invalid" : "valid"}>
+            <TextField validationState={login.error ? "invalid" : "valid"}>
               <TextFieldLabel>Password</TextFieldLabel>
               <TextFieldInput
                 name="password"
                 type="password"
-                autocomplete="new-password"
+                autocomplete="current-password"
                 minLength={5}
-                maxLength={50}
+                maxLength={60}
               />
               <TextFieldErrorMessage>
-                {register.error?.message}
+                {login.error?.message}
               </TextFieldErrorMessage>
             </TextField>
           </CardContent>
@@ -86,15 +86,15 @@ export default function Register(props: RouteSectionProps) {
               type="submit"
               size="lg"
               class="w-full"
-              disabled={register.isPending}
+              disabled={login.isPending}
             >
-              Register
+              Login
             </Button>
 
             <p>
-              Already have an account?{" "}
-              <a href="/login" class="text-info-foreground underline">
-                Login
+              Don't have an account?{" "}
+              <a href="/register" class="text-info-foreground underline">
+                Register
               </a>
             </p>
           </CardFooter>

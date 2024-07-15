@@ -9,15 +9,15 @@ import { ReplicacheProvider } from "./replicache";
 const routes: RouteDefinition[] = [
   {
     path: "/",
-    component: lazy(() => import("./routes/index")),
+    component: lazy(() => import("shared/routes/index")),
   },
   {
     path: "/login",
-    component: lazy(() => import("./routes/login")),
+    component: lazy(() => import("shared/routes/login")),
   },
   {
     path: "/register",
-    component: lazy(() => import("./routes/register")),
+    component: lazy(() => import("shared/routes/register")),
   },
   {
     path: "/list",
@@ -35,7 +35,7 @@ const routes: RouteDefinition[] = [
     path: "/board/:board_public_id",
     component: lazy(() => import("./routes/board/[board_public_id]")),
   },
-  { path: "*404", component: lazy(() => import("./routes/[...404]")) },
+  { path: "*404", component: lazy(() => import("shared/routes/not-found")) },
 ];
 
 export function App() {

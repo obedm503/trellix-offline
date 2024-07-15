@@ -1,11 +1,9 @@
 import { RouteSectionProps } from "@solidjs/router";
-import Plus from "lucide-solid/icons/plus";
 import { getUser } from "shared/api/auth";
 import type { List, ListItem } from "shared/api/schema";
 import { pocketbaseId, publicId } from "shared/nanoid";
 import { ReorderList } from "shared/reorder-list";
 import { ScrollableCardLayout } from "shared/scrollable-card-layout";
-import { Button } from "shared/ui/button";
 import { Checkbox } from "shared/ui/checkbox";
 import { TextField, TextFieldInput } from "shared/ui/text-field";
 import { sortBy } from "shared/utils";
@@ -60,47 +58,18 @@ export default function ListDetail(props: RouteSectionProps) {
   return (
     <ScrollableCardLayout
       title={list()?.name}
-      footer={(props) => {
-        const [listItemText, setListItemText] = createSignal("");
-        return (
-          <form
-            class="flex w-full flex-col gap-2"
-            onSubmit={async (e) => {
-              e.preventDefault();
-
-              if (listItemText().length) {
-                await rep().mutate.list_item([
-                  {
-                    _op: "create",
-                    id: pocketbaseId(),
-                    public_id: publicId(),
-                    list: list()!.id,
-                    text: listItemText(),
-                    order: list_items().length,
-                    created_by: user().id,
-                  },
-                ]);
-
-                setListItemText("");
-
-                props.scroll("down");
-              }
-            }}
-          >
-            <TextField value={listItemText()} onChange={setListItemText}>
-              <TextFieldInput type="text" maxLength={60} minLength={1} />
-            </TextField>
-
-            <Button
-              type="submit"
-              size="icon"
-              class="w-full"
-              disabled={!listItemText().length}
-            >
-              <Plus />
-            </Button>
-          </form>
-        );
+      onAddItem={async (text) => {
+        await rep().mutate.list_item([
+          {
+            _op: "create",
+            id: pocketbaseId(),
+            public_id: publicId(),
+            list: list()!.id,
+            text,
+            order: list_items().length,
+            created_by: user().id,
+          },
+        ]);
       }}
     >
       {(props) => (
@@ -157,8 +126,8 @@ export default function ListDetail(props: RouteSectionProps) {
                   <TextFieldInput
                     class="disabled:cursor-default"
                     type="text"
-                    maxLength={60}
                     minLength={1}
+                    maxLength={60}
                   />
                 </TextField>
               </>

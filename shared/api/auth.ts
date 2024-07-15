@@ -1,4 +1,4 @@
-import { useNavigate } from "@solidjs/router";
+import { useNavigate, useLocation } from "@solidjs/router";
 import { createSignal, onCleanup, onMount } from "solid-js";
 import { pb } from "./pb";
 import type { User } from "./schema";
@@ -30,11 +30,12 @@ export function getUser(
   redirectIfNone: boolean = true,
 ): () => User | undefined {
   const navigate = useNavigate();
+  const location = useLocation();
   const store = useAuthStore();
 
   onMount(() => {
     if (!store() && redirectIfNone) {
-      navigate("/login");
+      navigate(`/login?redirectTo=${encodeURIComponent(location.pathname)}`);
     }
   });
 

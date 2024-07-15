@@ -1,9 +1,7 @@
 import { RouteSectionProps } from "@solidjs/router";
-import Plus from "lucide-solid/icons/plus";
 import { pocketbaseId, publicId } from "shared/nanoid";
 import { ReorderList } from "shared/reorder-list";
 import { ScrollableCardLayout } from "shared/scrollable-card-layout";
-import { Button } from "shared/ui/button";
 import { Checkbox } from "shared/ui/checkbox";
 import { TextField, TextFieldInput } from "shared/ui/text-field";
 import { createEffect, createMemo, createSignal, onCleanup } from "solid-js";
@@ -44,44 +42,15 @@ export default function ListDetail(props: RouteSectionProps) {
   return (
     <ScrollableCardLayout
       title={list()?.name}
-      footer={(props) => {
-        const [listItemText, setListItemText] = createSignal("");
-        return (
-          <form
-            class="flex w-full flex-col gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-
-              if (listItemText().length) {
-                collections.list_item.insert({
-                  id: pocketbaseId(),
-                  list: list()!.id,
-                  text: listItemText(),
-                  public_id: publicId(),
-                  expand: { list: { public_id: list_public_id() } },
-                  order: list_items().length,
-                } as any);
-
-                setListItemText("");
-
-                props.scroll("down");
-              }
-            }}
-          >
-            <TextField value={listItemText()} onChange={setListItemText}>
-              <TextFieldInput type="text" maxLength={60} minLength={1} />
-            </TextField>
-
-            <Button
-              type="submit"
-              size="icon"
-              class="w-full"
-              disabled={!listItemText().length}
-            >
-              <Plus />
-            </Button>
-          </form>
-        );
+      onAddItem={(text) => {
+        collections.list_item.insert({
+          id: pocketbaseId(),
+          list: list()!.id,
+          text,
+          public_id: publicId(),
+          expand: { list: { public_id: list_public_id() } },
+          order: list_items().length,
+        } as any);
       }}
     >
       {(props) => (

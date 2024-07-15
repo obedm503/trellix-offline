@@ -1,5 +1,4 @@
 import Link from "lucide-solid/icons/link";
-import Plus from "lucide-solid/icons/plus";
 import { pocketbaseId, publicId } from "shared/nanoid";
 import { ReorderList } from "shared/reorder-list";
 import { ScrollableCardLayout } from "shared/scrollable-card-layout";
@@ -26,42 +25,13 @@ export default function Boards() {
   return (
     <ScrollableCardLayout
       title="Boards"
-      footer={(props) => {
-        const [name, setName] = createSignal("");
-        return (
-          <form
-            class="flex w-full flex-col gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-
-              if (name().length) {
-                collections.board.insert({
-                  id: pocketbaseId(),
-                  name: name(),
-                  public_id: publicId(),
-                  order: boards().length,
-                } as any);
-
-                setName("");
-
-                props.scroll("down");
-              }
-            }}
-          >
-            <TextField value={name()} onChange={setName}>
-              <TextFieldInput type="text" minLength={1} maxLength={50} />
-            </TextField>
-
-            <Button
-              type="submit"
-              size="icon"
-              class="w-full"
-              disabled={!name().length}
-            >
-              <Plus />
-            </Button>
-          </form>
-        );
+      onAddItem={(name) => {
+        collections.board.insert({
+          id: pocketbaseId(),
+          name,
+          public_id: publicId(),
+          order: boards().length,
+        } as any);
       }}
     >
       {(props) => (
@@ -125,7 +95,7 @@ export default function Boards() {
                     class="disabled:cursor-default"
                     type="text"
                     minLength={1}
-                    maxLength={50}
+                    maxLength={60}
                   />
                 </TextField>
               </>

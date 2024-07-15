@@ -1,6 +1,6 @@
 import { RouteSectionProps } from "@solidjs/router";
 import { getUser } from "shared/api/auth";
-import { html } from "../../../README.md";
+import { html } from "../../README.md";
 
 export default function Index(props: RouteSectionProps) {
   const user = getUser();

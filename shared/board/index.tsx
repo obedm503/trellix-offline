@@ -322,7 +322,7 @@ function BoardColumn(props: {
                     type="text"
                     ref={columnTextInput}
                     minLength={1}
-                    maxLength={50}
+                    maxLength={60}
                   />
                 </TextField>
               </Show>
@@ -366,7 +366,7 @@ function BoardColumn(props: {
               }}
             >
               <TextField value={newItemText()} onChange={setNewItemText}>
-                <TextFieldInput type="text" minLength={1} maxLength={50} />
+                <TextFieldInput type="text" minLength={1} maxLength={60} />
               </TextField>
 
               <Button
@@ -831,7 +831,7 @@ export function Board(props: {
           }}
         >
           <TextField value={newCardText()} onChange={setNewCardText}>
-            <TextFieldInput type="text" minLength={1} maxLength={50} />
+            <TextFieldInput type="text" minLength={1} maxLength={60} />
           </TextField>
 
           <Button

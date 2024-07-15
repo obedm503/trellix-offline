@@ -23,16 +23,16 @@ import {
   searchCollection,
 } from "./util";
 
-const cookie = z.object({
+const REPLICACHE_COOKIE = z.object({
   order: z.number(),
   cvrID: z.string(),
 });
 
-type Cookie = z.infer<typeof cookie>;
+type ReplicacheCookie = z.infer<typeof REPLICACHE_COOKIE>;
 
-const pullRequest = z.object({
+const REPLICACHE_PULL_REQUEST = z.object({
   clientGroupID: z.string(),
-  cookie: z.union([cookie, z.null()]),
+  cookie: REPLICACHE_COOKIE.nullable(),
 });
 
 // cvrKey -> ClientViewRecord
@@ -46,9 +46,9 @@ export async function pull(
   userID: string,
   requestBody: ReadonlyJSONValue,
 ): Promise<PullResponse> {
-  console.log(`Processing pull`, JSON.stringify(requestBody, null, ""));
+  console.log(`Processing pull`, requestBody);
 
-  const pull = pullRequest.parse(requestBody);
+  const pull = REPLICACHE_PULL_REQUEST.parse(requestBody);
 
   const { clientGroupID } = pull;
   // 1: Fetch prevCVR
@@ -198,7 +198,7 @@ export async function pull(
   }
 
   // 18(ii): construct cookie
-  const cookie: Cookie = {
+  const cookie: ReplicacheCookie = {
     order: nextCVRVersion,
     cvrID,
   };

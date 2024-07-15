@@ -8,18 +8,6 @@ import { z } from "zod";
 import { pull } from "./replicache/pull";
 import { push } from "./replicache/push";
 
-if (!process.env.VITE_POCKETBASE_URL) {
-  throw new Error("VITE_POCKETBASE_URL not defined");
-}
-
-function getPocketbase(token: string) {
-  const pb = new PocketBase(process.env.VITE_POCKETBASE_URL);
-  pb.authStore.save(token);
-  pb.autoCancellation(false);
-
-  return pb;
-}
-
 const app = new Hono<{
   Variables: {
     session: Session;
@@ -42,6 +30,18 @@ app.use(
   }),
 );
 
+function getPocketbase(token: string) {
+  if (!process.env.VITE_POCKETBASE_URL) {
+    throw new Error("VITE_POCKETBASE_URL not defined");
+  }
+
+  const pb = new PocketBase(process.env.VITE_POCKETBASE_URL);
+  pb.authStore.save(token);
+  pb.autoCancellation(false);
+
+  return pb;
+}
+
 app.post("/api/push", async (c) => {
   const token = c.req.header("authorization");
   if (!token) {
@@ -55,6 +55,7 @@ app.post("/api/push", async (c) => {
 
   return c.json({}, 200);
 });
+
 app.post("/api/pull", async (c) => {
   const token = c.req.header("authorization");
   if (!token) {

@@ -1,5 +1,4 @@
 import Link from "lucide-solid/icons/link";
-import Plus from "lucide-solid/icons/plus";
 import { pocketbaseId, publicId } from "shared/nanoid";
 import { ReorderList } from "shared/reorder-list";
 import { ScrollableCardLayout } from "shared/scrollable-card-layout";
@@ -11,9 +10,7 @@ import { collections } from "../../collections";
 export default function Lists() {
   createEffect(() => {
     const currentTitle = document.title;
-
     document.title = "Lists";
-
     onCleanup(() => {
       document.title = currentTitle;
     });
@@ -28,42 +25,13 @@ export default function Lists() {
   return (
     <ScrollableCardLayout
       title="Lists"
-      footer={(props) => {
-        const [listName, setListName] = createSignal("");
-        return (
-          <form
-            class="flex w-full flex-col gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-
-              if (listName().length) {
-                collections.list.insert({
-                  id: pocketbaseId(),
-                  name: listName(),
-                  public_id: publicId(),
-                  order: lists().length,
-                } as any);
-
-                setListName("");
-
-                props.scroll("down");
-              }
-            }}
-          >
-            <TextField value={listName()} onChange={setListName}>
-              <TextFieldInput type="text" minLength={1} maxLength={50} />
-            </TextField>
-
-            <Button
-              type="submit"
-              size="icon"
-              class="w-full"
-              disabled={!listName().length}
-            >
-              <Plus />
-            </Button>
-          </form>
-        );
+      onAddItem={(name) => {
+        collections.list.insert({
+          id: pocketbaseId(),
+          name,
+          public_id: publicId(),
+          order: lists().length,
+        } as any);
       }}
     >
       {(props) => (
@@ -127,7 +95,7 @@ export default function Lists() {
                     class="disabled:cursor-default"
                     type="text"
                     minLength={1}
-                    maxLength={50}
+                    maxLength={60}
                   />
                 </TextField>
               </>

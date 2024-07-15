@@ -1,4 +1,7 @@
-import { Component, JSXElement } from "solid-js";
+import Plus from "lucide-solid/icons/plus";
+import { Component, createSignal, JSXElement } from "solid-js";
+import { Dynamic } from "solid-js/web";
+import { Button } from "./ui/button";
 import {
   Card,
   CardContent,
@@ -6,7 +9,11 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { Dynamic } from "solid-js/web";
+import {
+  TextField,
+  TextFieldErrorMessage,
+  TextFieldInput,
+} from "./ui/text-field";
 
 type ScrollDirection = "up" | "down" | "left" | "right";
 
@@ -29,12 +36,17 @@ export function scroll(el: Element, direction: ScrollDirection) {
 export function ScrollableCardLayout(props: {
   title: JSXElement;
   children: Component<Props>;
-  footer: Component<Props>;
+  onAddItem(text: string): void | Promise<void>;
+  addItemError?: string;
 }) {
   let cardContent!: HTMLDivElement;
   function scrollCard(direction: ScrollDirection) {
     scroll(cardContent, direction);
   }
+
+  const [text, setText] = createSignal("");
+  const trimmed = () => text().trim();
+
   return (
     <main class="grid h-screen items-start justify-items-center sm:pt-16">
       <Card class="w-full sm:max-w-xl">
@@ -50,7 +62,38 @@ export function ScrollableCardLayout(props: {
         </CardContent>
 
         <CardFooter class="pt-6">
-          <Dynamic component={props.footer} scroll={scrollCard} />
+          <form
+            class="flex w-full flex-col gap-2"
+            onSubmit={async (e) => {
+              e.preventDefault();
+
+              if (trimmed().length) {
+                await props.onAddItem(trimmed());
+                setText("");
+                scrollCard("down");
+              }
+            }}
+          >
+            <TextField
+              value={text()}
+              onChange={setText}
+              validationState={props.addItemError ? "invalid" : "valid"}
+            >
+              <TextFieldInput type="text" minLength={1} maxLength={60} />
+              <TextFieldErrorMessage>
+                {props.addItemError}
+              </TextFieldErrorMessage>
+            </TextField>
+
+            <Button
+              type="submit"
+              size="icon"
+              class="w-full"
+              disabled={!trimmed().length}
+            >
+              <Plus />
+            </Button>
+          </form>
         </CardFooter>
       </Card>
     </main>

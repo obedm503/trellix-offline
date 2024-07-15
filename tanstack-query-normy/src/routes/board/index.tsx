@@ -1,15 +1,10 @@
 import Link from "lucide-solid/icons/link";
-import Plus from "lucide-solid/icons/plus";
 import { getUser } from "shared/api/auth";
 import { pocketbaseId, publicId } from "shared/nanoid";
 import { ReorderList } from "shared/reorder-list";
 import { ScrollableCardLayout } from "shared/scrollable-card-layout";
 import { Button } from "shared/ui/button";
-import {
-  TextField,
-  TextFieldErrorMessage,
-  TextFieldInput,
-} from "shared/ui/text-field";
+import { TextField, TextFieldInput } from "shared/ui/text-field";
 import { showToast } from "shared/utils";
 import { createEffect, createSignal, Match, onCleanup, Switch } from "solid-js";
 import { getBoards, mutateBoards } from "../../queries";
@@ -32,53 +27,19 @@ export default function Boards() {
   return (
     <ScrollableCardLayout
       title="Boards"
-      footer={(props) => {
-        const [name, setName] = createSignal("");
-        return (
-          <form
-            class="flex w-full flex-col gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-
-              if (name().length) {
-                showToast(
-                  save.mutateAsync([
-                    {
-                      _op: "create",
-                      id: pocketbaseId(),
-                      public_id: publicId(),
-                      name: name(),
-                      order: boards.data?.length ?? 0,
-                      created_by: user()!.id,
-                    },
-                  ]),
-                );
-                setName("");
-
-                props.scroll("down");
-              }
-            }}
-          >
-            <TextField
-              value={name()}
-              onChange={setName}
-              validationState={save.error ? "invalid" : "valid"}
-            >
-              <TextFieldInput type="text" minLength={1} maxLength={50} />
-              <TextFieldErrorMessage>
-                {save.error?.message}
-              </TextFieldErrorMessage>
-            </TextField>
-
-            <Button
-              type="submit"
-              size="icon"
-              class="w-full"
-              disabled={!name().length}
-            >
-              <Plus />
-            </Button>
-          </form>
+      addItemError={save.error?.message}
+      onAddItem={(name) => {
+        showToast(
+          save.mutateAsync([
+            {
+              _op: "create",
+              id: pocketbaseId(),
+              public_id: publicId(),
+              name,
+              order: boards.data?.length ?? 0,
+              created_by: user()!.id,
+            },
+          ]),
         );
       }}
     >
@@ -149,7 +110,7 @@ export default function Boards() {
                         class="disabled:cursor-default"
                         type="text"
                         minLength={1}
-                        maxLength={50}
+                        maxLength={60}
                       />
                     </TextField>
                   </>

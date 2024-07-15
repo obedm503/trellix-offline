@@ -258,7 +258,7 @@ function CardPrimitive(props: {
               class="text-base disabled:cursor-default"
               type="text"
               minLength={1}
-              maxLength={50}
+              maxLength={60}
             />
           </TextField>
         </Show>

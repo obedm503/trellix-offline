@@ -1,5 +1,4 @@
 import Link from "lucide-solid/icons/link";
-import Plus from "lucide-solid/icons/plus";
 import { getUser } from "shared/api/auth";
 import type { List } from "shared/api/schema";
 import { pocketbaseId, publicId } from "shared/nanoid";
@@ -37,46 +36,17 @@ export default function Lists() {
   return (
     <ScrollableCardLayout
       title="Lists"
-      footer={(props) => {
-        const [listName, setListName] = createSignal("");
-        return (
-          <form
-            class="flex w-full flex-col gap-2"
-            onSubmit={async (e) => {
-              e.preventDefault();
-
-              if (listName().length) {
-                await rep().mutate.list([
-                  {
-                    _op: "create",
-                    id: pocketbaseId(),
-                    public_id: publicId(),
-                    name: listName(),
-                    order: lists().length,
-                    created_by: user().id,
-                  },
-                ]);
-
-                setListName("");
-
-                props.scroll("down");
-              }
-            }}
-          >
-            <TextField value={listName()} onChange={setListName}>
-              <TextFieldInput type="text" minLength={1} maxLength={50} />
-            </TextField>
-
-            <Button
-              type="submit"
-              size="icon"
-              class="w-full"
-              disabled={!listName().length}
-            >
-              <Plus />
-            </Button>
-          </form>
-        );
+      onAddItem={async (name) => {
+        await rep().mutate.list([
+          {
+            _op: "create",
+            id: pocketbaseId(),
+            public_id: publicId(),
+            name,
+            order: lists().length,
+            created_by: user().id,
+          },
+        ]);
       }}
     >
       {(props) => (
@@ -136,7 +106,7 @@ export default function Lists() {
                     class="disabled:cursor-default"
                     type="text"
                     minLength={1}
-                    maxLength={50}
+                    maxLength={60}
                   />
                 </TextField>
               </>

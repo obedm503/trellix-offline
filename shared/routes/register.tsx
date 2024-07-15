@@ -1,23 +1,23 @@
 import { useNavigate, type RouteSectionProps } from "@solidjs/router";
 import { createMutation } from "@tanstack/solid-query";
-import * as auth from "shared/api/auth";
-import { Button } from "shared/ui/button";
+import { createEffect } from "solid-js";
+import * as auth from "../api/auth";
+import { Button } from "../ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "shared/ui/card";
+} from "../ui/card";
 import {
   TextField,
   TextFieldErrorMessage,
   TextFieldInput,
   TextFieldLabel,
-} from "shared/ui/text-field";
-import { createEffect } from "solid-js";
+} from "../ui/text-field";
 
-export default function Register(props: RouteSectionProps) {
+export default function RegisterRoute(props: RouteSectionProps) {
   const navigate = useNavigate();
   const user = auth.getUser(false);
   createEffect(() => {
@@ -37,8 +37,7 @@ export default function Register(props: RouteSectionProps) {
     },
     onSuccess(success) {
       if (success) {
-        const redirectTo = props.params.redirectTo || "/";
-        navigate(redirectTo);
+        navigate("/");
       }
     },
   }));
@@ -74,7 +73,7 @@ export default function Register(props: RouteSectionProps) {
                 type="password"
                 autocomplete="new-password"
                 minLength={5}
-                maxLength={50}
+                maxLength={60}
               />
               <TextFieldErrorMessage>
                 {register.error?.message}

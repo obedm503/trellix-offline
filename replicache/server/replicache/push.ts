@@ -12,18 +12,18 @@ import {
   type Affected,
 } from "./util";
 
-const mutationSchema = z.object({
+const REPLICACHE_MUTATION = z.object({
   id: z.number(),
   clientID: z.string(),
   name: z.string(),
   args: z.any(),
 });
 
-type Mutation = z.infer<typeof mutationSchema>;
+type ReplicacheMutation = z.infer<typeof REPLICACHE_MUTATION>;
 
-const pushRequestSchema = z.object({
+const REPLICACHE_PUSH_REQUEST = z.object({
   clientGroupID: z.string(),
-  mutations: z.array(mutationSchema),
+  mutations: z.array(REPLICACHE_MUTATION),
 });
 
 export async function push(
@@ -31,9 +31,9 @@ export async function push(
   userID: string,
   requestBody: ReadonlyJSONValue,
 ) {
-  console.log("Processing push", JSON.stringify(requestBody, null, ""));
+  console.log("Processing push", requestBody);
 
-  const push = pushRequestSchema.parse(requestBody);
+  const push = REPLICACHE_PUSH_REQUEST.parse(requestBody);
 
   const t0 = Date.now();
 
@@ -75,7 +75,7 @@ async function processMutation(
   pb: Pocketbase,
   userID: string,
   clientGroupID: string,
-  mutation: Mutation,
+  mutation: ReplicacheMutation,
   // 1: `let errorMode = false`. In JS, we implement this step naturally
   // as a param. In case of failure, caller will call us again with `true`.
   errorMode: boolean,
@@ -89,11 +89,7 @@ async function processMutation(
     boardItemIDs: [],
   };
 
-  console.log(
-    "Processing mutation",
-    errorMode ? "errorMode" : "",
-    JSON.stringify(mutation, null, ""),
-  );
+  console.log("Processing mutation", errorMode ? "errorMode" : "", mutation);
 
   // 3: `getClientGroup(body.clientGroupID)`
   // 4: Verify requesting user owns cg (in function)
@@ -128,9 +124,7 @@ async function processMutation(
       affected = await mutate(pb, mutation);
     } catch (e) {
       // 10(ii)(a-c): log error, abort, and retry
-      console.error(
-        `Error executing mutation: ${JSON.stringify(mutation)}: ${e}`,
-      );
+      console.error("Error executing mutation:", mutation, e);
       throw e;
     }
   }
@@ -152,7 +146,10 @@ async function processMutation(
   return affected;
 }
 
-async function mutate(pb: Pocketbase, mutation: Mutation): Promise<Affected> {
+async function mutate(
+  pb: Pocketbase,
+  mutation: ReplicacheMutation,
+): Promise<Affected> {
   switch (mutation.name as keyof Mutators) {
     case "list": {
       const res = await api.list.mutate(pb, mutation.args);

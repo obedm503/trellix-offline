@@ -1,16 +1,10 @@
 import { RouteSectionProps } from "@solidjs/router";
-import Plus from "lucide-solid/icons/plus";
 import { getUser } from "shared/api/auth";
 import { pocketbaseId, publicId } from "shared/nanoid";
 import { ReorderList } from "shared/reorder-list";
 import { ScrollableCardLayout } from "shared/scrollable-card-layout";
-import { Button } from "shared/ui/button";
 import { Checkbox } from "shared/ui/checkbox";
-import {
-  TextField,
-  TextFieldErrorMessage,
-  TextFieldInput,
-} from "shared/ui/text-field";
+import { TextField, TextFieldInput } from "shared/ui/text-field";
 import { showToast } from "shared/utils";
 import {
   createEffect,
@@ -60,54 +54,20 @@ export default function ListDetail(props: RouteSectionProps) {
           </Match>
         </Switch>
       }
-      footer={(props) => {
-        const [listItemText, setListItemText] = createSignal("");
-        return (
-          <form
-            class="flex w-full flex-col gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-
-              if (listItemText().length) {
-                showToast(
-                  save.mutateAsync([
-                    {
-                      _op: "create",
-                      id: pocketbaseId(),
-                      public_id: publicId(),
-                      text: listItemText(),
-                      order: list_items.data?.length ?? 0,
-                      list: list()!.id,
-                      created_by: user()!.id,
-                    },
-                  ]),
-                );
-                setListItemText("");
-
-                props.scroll("down");
-              }
-            }}
-          >
-            <TextField
-              value={listItemText()}
-              onChange={setListItemText}
-              validationState={save.error ? "invalid" : "valid"}
-            >
-              <TextFieldInput type="text" maxLength={60} minLength={1} />
-              <TextFieldErrorMessage>
-                {save.error?.message}
-              </TextFieldErrorMessage>
-            </TextField>
-
-            <Button
-              type="submit"
-              size="icon"
-              class="w-full"
-              disabled={!listItemText().length}
-            >
-              <Plus />
-            </Button>
-          </form>
+      addItemError={save.error?.message}
+      onAddItem={async (text) => {
+        showToast(
+          save.mutateAsync([
+            {
+              _op: "create",
+              id: pocketbaseId(),
+              public_id: publicId(),
+              text,
+              order: list_items.data?.length ?? 0,
+              list: list()!.id,
+              created_by: user()!.id,
+            },
+          ]),
         );
       }}
     >
