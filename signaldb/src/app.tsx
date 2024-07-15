@@ -1,6 +1,6 @@
 import { RouteDefinition, Router } from "@solidjs/router";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
-import { api } from "shared/api";
+import * as auth from "shared/api/auth";
 import { Nav } from "shared/nav";
 import { Toaster } from "shared/ui/toast";
 import { lazy, onMount, Suspense } from "solid-js";
@@ -41,7 +41,7 @@ export function App() {
   const queryClient = new QueryClient();
 
   onMount(() => {
-    api.auth.refresh().catch(console.error);
+    auth.refresh().catch(console.error);
   });
 
   return (

@@ -60,6 +60,7 @@ export type List = {
   deleted: boolean;
   order: number;
   created: string;
+  updated: string;
 };
 
 export type ListItem = {
@@ -72,6 +73,7 @@ export type ListItem = {
   deleted: boolean;
   order: number;
   created: string;
+  updated: string;
 };
 
 export type schema = {

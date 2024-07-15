@@ -1,7 +1,7 @@
 import { RouteDefinition, Router } from "@solidjs/router";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import { PersistQueryClientProvider } from "@tanstack/solid-query-persist-client";
-import { api } from "shared/api";
+import * as auth from "shared/api/auth";
 import { pb } from "shared/api/pb";
 import { Nav } from "shared/nav";
 import { Toaster } from "shared/ui/toast";
@@ -45,7 +45,7 @@ export function App() {
   const queryClient = new QueryClient();
 
   onMount(() => {
-    api.auth.refresh().catch(console.error);
+    auth.refresh().catch(console.error);
 
     pb.authStore.onChange(() => {
       if (!pb.authStore.isValid) {

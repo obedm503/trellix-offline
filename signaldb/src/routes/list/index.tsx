@@ -95,10 +95,10 @@ export default function Lists() {
           {(props) => {
             const [text, setText] = createSignal(props.item.name);
             function onFocusOut() {
-              if (props.item.name !== text()) {
+              if (props.item.name !== text().trim()) {
                 collections.list.updateOne(
                   { id: props.item.id },
-                  { $set: { name: text() } },
+                  { $set: { name: text().trim() } },
                 );
               }
             }

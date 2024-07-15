@@ -1,5 +1,6 @@
 import Link from "lucide-solid/icons/link";
 import Plus from "lucide-solid/icons/plus";
+import { getUser } from "shared/api/auth";
 import { publicId } from "shared/nanoid";
 import { ReorderList } from "shared/reorder-list";
 import { ScrollableCardLayout } from "shared/scrollable-card-layout";
@@ -28,6 +29,8 @@ export default function Lists() {
 
   const save = mutateLists();
 
+  const user = getUser();
+
   return (
     <ScrollableCardLayout
       title="Lists"
@@ -47,6 +50,7 @@ export default function Lists() {
                       name: listName(),
                       public_id: publicId(),
                       order: lists.data?.length ?? 0,
+                      created_by: user()!.id,
                     },
                   ]),
                 );
@@ -109,13 +113,13 @@ export default function Lists() {
               {(props) => {
                 const [text, setText] = createSignal(props.item.name);
                 function onFocusOut() {
-                  if (props.item.name !== text()) {
+                  if (props.item.name !== text().trim()) {
                     showToast(
                       save.mutateAsync([
                         {
                           _op: "update",
                           id: props.item.id,
-                          name: text(),
+                          name: text().trim(),
                         },
                       ]),
                     );

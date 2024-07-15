@@ -1,49 +1,51 @@
-import { z } from "zod";
-import { pocketbaseId, PUBLIC_ID_SCHEMA } from "../nanoid";
-import { pb } from "./pb";
-import { List, User } from "./schema";
 import { omit } from "lodash-es";
+import type Pocketbase from "pocketbase";
+import { z } from "zod";
+import {
+  POCKETBASE_ID_SCHEMA,
+  pocketbaseId,
+  PUBLIC_ID_SCHEMA,
+} from "../nanoid";
+import type { List } from "./schema";
 
-export async function get() {
+export async function get(pb: Pocketbase) {
   return await pb.collection<List>("list").getFullList({
     sort: "order,created",
     filter: "deleted != true",
   });
 }
 
-const schema = z.array(
+export const schema = z.array(
   z.discriminatedUnion("_op", [
     z.object({
       _op: z.literal("create"),
       public_id: PUBLIC_ID_SCHEMA,
       name: z.string().min(1).max(50),
       order: z.number().min(0),
+      created_by: POCKETBASE_ID_SCHEMA,
     }),
     z.object({
       _op: z.literal("update"),
-      id: z.string(),
+      id: POCKETBASE_ID_SCHEMA,
       name: z.string().min(1).max(50).optional(),
       order: z.number().min(0).optional(),
     }),
     z.object({
       _op: z.literal("delete"),
-      id: z.string(),
+      id: POCKETBASE_ID_SCHEMA,
     }),
   ]),
 );
 export type ListInputs = z.infer<typeof schema>;
-export async function mutate(inputs: ListInputs) {
-  const user = pb.authStore.model as User | null;
-  if (!user) {
-    throw new Error("Unauthorized");
-  }
-
+export async function mutate(pb: Pocketbase, inputs: ListInputs) {
   const items = schema.parse(inputs);
 
-  await Promise.all(
+  const deleted = await Promise.all(
     items
       .filter((item) => item._op === "delete")
-      .map((item) => pb.collection("list").update(item.id, { deleted: true })),
+      .map((item) =>
+        pb.collection<List>("list").update(item.id, { deleted: true }),
+      ),
   );
   const updated = await Promise.all(
     items
@@ -59,12 +61,11 @@ export async function mutate(inputs: ListInputs) {
         pb.collection<List>("list").create({
           ...omit(item, "_op"),
           id: pocketbaseId(),
-          created_by: user.id,
         }),
       ),
   );
 
-  return [...created, ...updated].sort((a, b) => {
+  return [...deleted, ...created, ...updated].sort((a, b) => {
     if (typeof a.order === "number" && typeof b.order === "number") {
       return a.order - b.order;
     }

@@ -7,20 +7,21 @@ import {
   ListInputs,
   ListItemInputs,
 } from "shared/api";
+import { pb } from "shared/api/pb";
 import { sortBy } from "shared/utils";
 import { createOptimisticMutation } from "./create-optimistic-mutation";
 
 export function getBoards() {
   return createQuery(() => ({
     queryKey: ["boards"],
-    queryFn: () => api.board.get(),
+    queryFn: () => api.board.get(pb),
     select: (data) => sortBy(data, ["order", "created"]),
   }));
 }
 export function mutateBoards() {
   return createOptimisticMutation(() => ({
     queryKey: ["boards"],
-    mutationFn: (inputs: BoardInputs) => api.board.mutate(inputs),
+    mutationFn: (inputs: BoardInputs) => api.board.mutate(pb, inputs),
     idKey: "id",
     publicIdKey: "public_id",
   }));
@@ -29,18 +30,15 @@ export function mutateBoards() {
 export function getBoardColumns(boardPublicId: () => string) {
   return createQuery(() => ({
     queryKey: ["board_columns", boardPublicId()],
-    queryFn: () => api.board_column.get(boardPublicId()),
+    queryFn: () => api.board_column.get(pb, boardPublicId()),
     select: (data) => sortBy(data, ["order", "created"]),
   }));
 }
-export function mutateBoardColumns(
-  boardPublicId: () => string,
-  boardId: () => string,
-) {
+export function mutateBoardColumns(boardPublicId: () => string) {
   return createOptimisticMutation(() => ({
     queryKey: ["board_columns", boardPublicId()],
     mutationFn: (inputs: BoardColumnInputs) =>
-      api.board_column.mutate(boardId(), inputs),
+      api.board_column.mutate(pb, inputs),
     idKey: "id",
     publicIdKey: "public_id",
   }));
@@ -49,14 +47,14 @@ export function mutateBoardColumns(
 export function getBoardItems(boardPublicId: () => string) {
   return createQuery(() => ({
     queryKey: ["board_items", boardPublicId()],
-    queryFn: () => api.board_item.get(boardPublicId()),
+    queryFn: () => api.board_item.get(pb, boardPublicId()),
     select: (data) => sortBy(data, ["order", "created"]),
   }));
 }
 export function mutateBoardItems(boardPublicId: () => string) {
   return createOptimisticMutation(() => ({
     queryKey: ["board_items", boardPublicId()],
-    mutationFn: (inputs: BoardItemInputs) => api.board_item.mutate(inputs),
+    mutationFn: (inputs: BoardItemInputs) => api.board_item.mutate(pb, inputs),
     idKey: "id",
     publicIdKey: "public_id",
   }));
@@ -65,14 +63,14 @@ export function mutateBoardItems(boardPublicId: () => string) {
 export function getLists() {
   return createQuery(() => ({
     queryKey: ["lists"],
-    queryFn: () => api.list.get(),
+    queryFn: () => api.list.get(pb),
     select: (data) => sortBy(data, ["order", "created"]),
   }));
 }
 export function mutateLists() {
   return createOptimisticMutation(() => ({
     queryKey: ["lists"],
-    mutationFn: (inputs: ListInputs) => api.list.mutate(inputs),
+    mutationFn: (inputs: ListInputs) => api.list.mutate(pb, inputs),
     idKey: "id",
     publicIdKey: "public_id",
   }));
@@ -81,18 +79,14 @@ export function mutateLists() {
 export function getListItems(listPublicId: () => string) {
   return createQuery(() => ({
     queryKey: ["list_items", listPublicId()],
-    queryFn: () => api.list_item.get(listPublicId()),
+    queryFn: () => api.list_item.get(pb, listPublicId()),
     select: (data) => sortBy(data, ["order", "created"]),
   }));
 }
-export function mutateListItems(
-  listPublicId: () => string,
-  listId: () => string,
-) {
+export function mutateListItems(listPublicId: () => string) {
   return createOptimisticMutation(() => ({
     queryKey: ["list_items", listPublicId()],
-    mutationFn: (inputs: ListItemInputs) =>
-      api.list_item.mutate(listId(), inputs),
+    mutationFn: (inputs: ListItemInputs) => api.list_item.mutate(pb, inputs),
     idKey: "id",
     publicIdKey: "public_id",
   }));

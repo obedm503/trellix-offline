@@ -1,9 +1,9 @@
 import { RouteSectionProps } from "@solidjs/router";
-import { api } from "shared/api";
+import { getUser } from "shared/api/auth";
 import { html } from "../../../README.md";
 
 export default function Index(props: RouteSectionProps) {
-  const user = api.auth.getUser();
+  const user = getUser();
 
   return (
     <main class="grid h-screen w-screen items-center justify-center overflow-x-hidden">

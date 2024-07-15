@@ -1,23 +1,28 @@
 import { omit } from "lodash-es";
+import type Pocketbase from "pocketbase";
 import { z } from "zod";
-import { pocketbaseId, PUBLIC_ID_SCHEMA } from "../nanoid";
-import { pb } from "./pb";
-import { Board, User } from "./schema";
+import {
+  POCKETBASE_ID_SCHEMA,
+  pocketbaseId,
+  PUBLIC_ID_SCHEMA,
+} from "../nanoid";
+import type { Board } from "./schema";
 
-export async function get() {
+export async function get(pb: Pocketbase) {
   return await pb.collection<Board>("board").getFullList({
     sort: "order,created",
     filter: "deleted != true",
   });
 }
 
-const schema = z.array(
+export const schema = z.array(
   z.discriminatedUnion("_op", [
     z.object({
       _op: z.literal("create"),
       public_id: PUBLIC_ID_SCHEMA,
       name: z.string().min(1).max(50),
       order: z.number().min(0),
+      created_by: POCKETBASE_ID_SCHEMA,
     }),
     z.object({
       _op: z.literal("update"),
@@ -32,15 +37,10 @@ const schema = z.array(
   ]),
 );
 export type BoardInputs = z.infer<typeof schema>;
-export async function mutate(inputs: BoardInputs) {
-  const user = pb.authStore.model as User | null;
-  if (!user) {
-    throw new Error("Unauthorized");
-  }
-
+export async function mutate(pb: Pocketbase, inputs: BoardInputs) {
   const items = schema.parse(inputs);
 
-  await Promise.all(
+  const deleted = await Promise.all(
     items
       .filter((item) => item._op === "delete")
       .map((item) => pb.collection("board").update(item.id, { deleted: true })),
@@ -57,16 +57,15 @@ export async function mutate(inputs: BoardInputs) {
   const created = await Promise.all(
     items
       .filter((item) => item._op === "create")
-      .map((item, i) =>
+      .map((item) =>
         pb.collection<Board>("board").create({
           ...omit(item, "_op"),
           id: pocketbaseId(),
-          created_by: user.id,
         }),
       ),
   );
 
-  return [...created, ...updated].sort((a, b) => {
+  return [...deleted, ...created, ...updated].sort((a, b) => {
     if (typeof a.order === "number" && typeof b.order === "number") {
       return a.order - b.order;
     }

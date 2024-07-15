@@ -1,4 +1,5 @@
 import { RouteSectionProps } from "@solidjs/router";
+import { getUser } from "shared/api/auth";
 import type { BoardColumn, BoardItem } from "shared/api/schema";
 import { Board } from "shared/board";
 import type { Column, Item } from "shared/board/context";
@@ -56,7 +57,7 @@ export default function Boards(props: RouteSectionProps) {
     return map;
   });
 
-  const saveColumn = mutateBoardColumns(board_public_id, () => board()!.id);
+  const saveColumn = mutateBoardColumns(board_public_id);
 
   const cols = createMemo(
     () =>
@@ -81,6 +82,8 @@ export default function Boards(props: RouteSectionProps) {
 
   let xScrollable!: HTMLElement;
 
+  const user = getUser();
+
   return (
     <main
       class="grid h-full w-full items-start justify-items-center overflow-x-auto sm:p-16"
@@ -101,6 +104,7 @@ export default function Boards(props: RouteSectionProps) {
                 public_id: publicId(),
                 column: columnMap()[item.columnPublicId].id,
                 order: columnMap()[item.columnPublicId]._items.length,
+                created_by: user()!.id,
               },
             ]),
           );
@@ -143,6 +147,7 @@ export default function Boards(props: RouteSectionProps) {
                 name: col.text,
                 public_id: publicId(),
                 order: cols().length,
+                created_by: user()!.id,
               },
             ]),
           );

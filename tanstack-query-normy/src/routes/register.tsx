@@ -1,6 +1,6 @@
 import { useNavigate, type RouteSectionProps } from "@solidjs/router";
 import { createMutation } from "@tanstack/solid-query";
-import { api } from "shared/api";
+import * as auth from "shared/api/auth";
 import { Button } from "shared/ui/button";
 import {
   Card,
@@ -19,7 +19,7 @@ import { createEffect } from "solid-js";
 
 export default function Register(props: RouteSectionProps) {
   const navigate = useNavigate();
-  const user = api.auth.getUser(false);
+  const user = auth.getUser(false);
   createEffect(() => {
     // go home if logged in
     if (user()) {
@@ -29,7 +29,7 @@ export default function Register(props: RouteSectionProps) {
 
   const register = createMutation(() => ({
     async mutationFn(data: FormData) {
-      await api.auth.register(
+      await auth.register(
         String(data.get("username")),
         String(data.get("password")),
       );

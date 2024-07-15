@@ -1,33 +1,44 @@
 import { useNavigate } from "@solidjs/router";
 import { createSignal, onCleanup, onMount } from "solid-js";
 import { pb } from "./pb";
-import { User } from "./schema";
+import type { User } from "./schema";
+import type { BaseAuthStore } from "pocketbase";
 
-export function getUser(redirectIfNone: boolean = true) {
-  const navigate = useNavigate();
-  const [user, setUser] = createSignal<User | null>(
-    pb.authStore.isValid ? (pb.authStore.model as User) : null,
+export function useAuthStore() {
+  type AuthStore = Omit<BaseAuthStore, "model"> & { model: User };
+  const [authStore, setAuthStore] = createSignal<AuthStore | undefined>(
+    pb.authStore.isValid ? (pb.authStore as any as AuthStore) : undefined,
   );
 
   onMount(() => {
-    if (!user() && redirectIfNone) {
-      navigate("/login");
-    }
-
     onCleanup(
       pb.authStore.onChange(() => {
-        const user = pb.authStore.isValid ? (pb.authStore.model as User) : null;
-        setUser(user);
-
-        if (!user && redirectIfNone) {
-          navigate("/login");
-          return;
-        }
+        const store = pb.authStore.isValid
+          ? (pb.authStore as any as AuthStore)
+          : undefined;
+        setAuthStore(store);
       }),
     );
   });
 
-  return user;
+  return authStore;
+}
+
+export function getUser(redirectIfNone?: true): () => User;
+export function getUser(redirectIfNone: false): () => User | undefined;
+export function getUser(
+  redirectIfNone: boolean = true,
+): () => User | undefined {
+  const navigate = useNavigate();
+  const store = useAuthStore();
+
+  onMount(() => {
+    if (!store() && redirectIfNone) {
+      navigate("/login");
+    }
+  });
+
+  return () => store()?.model!;
 }
 
 export function logout() {

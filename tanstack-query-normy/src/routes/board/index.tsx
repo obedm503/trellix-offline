@@ -1,5 +1,6 @@
 import Link from "lucide-solid/icons/link";
 import Plus from "lucide-solid/icons/plus";
+import { getUser } from "shared/api/auth";
 import { publicId } from "shared/nanoid";
 import { ReorderList } from "shared/reorder-list";
 import { ScrollableCardLayout } from "shared/scrollable-card-layout";
@@ -26,6 +27,8 @@ export default function Boards() {
 
   const save = mutateBoards();
 
+  const user = getUser();
+
   return (
     <ScrollableCardLayout
       title="Boards"
@@ -45,6 +48,7 @@ export default function Boards() {
                       name: name(),
                       public_id: publicId(),
                       order: boards.data?.length ?? 0,
+                      created_by: user()!.id,
                     },
                   ]),
                 );
@@ -107,13 +111,13 @@ export default function Boards() {
               {(props) => {
                 const [text, setText] = createSignal(props.item.name);
                 function onFocusOut() {
-                  if (props.item.name !== text()) {
+                  if (props.item.name !== text().trim()) {
                     showToast(
                       save.mutateAsync([
                         {
                           _op: "update",
                           id: props.item.id,
-                          name: text(),
+                          name: text().trim(),
                         },
                       ]),
                     );

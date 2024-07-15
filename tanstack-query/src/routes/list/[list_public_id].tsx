@@ -1,5 +1,6 @@
 import { RouteSectionProps } from "@solidjs/router";
 import Plus from "lucide-solid/icons/plus";
+import { getUser } from "shared/api/auth";
 import { publicId } from "shared/nanoid";
 import { ReorderList } from "shared/reorder-list";
 import { ScrollableCardLayout } from "shared/scrollable-card-layout";
@@ -44,7 +45,9 @@ export default function ListDetail(props: RouteSectionProps) {
 
   const list_items = getListItems(list_public_id);
 
-  const save = mutateListItems(list_public_id, () => list()!.id);
+  const save = mutateListItems(list_public_id);
+
+  const user = getUser();
 
   return (
     <ScrollableCardLayout
@@ -73,6 +76,8 @@ export default function ListDetail(props: RouteSectionProps) {
                       text: listItemText(),
                       public_id: publicId(),
                       order: list_items.data?.length ?? 0,
+                      list: list()!.id,
+                      created_by: user()!.id,
                     },
                   ]),
                 );

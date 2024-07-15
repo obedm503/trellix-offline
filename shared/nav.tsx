@@ -1,15 +1,15 @@
 import { useNavigate } from "@solidjs/router";
-import { api } from "shared/api";
 import { Show } from "solid-js";
+import { getUser, logout } from "./api/auth";
 import { Button } from "./ui/button";
 import { NavigationMenu, NavigationMenuTrigger } from "./ui/navigation-menu";
 
 export function Nav() {
-  const user = api.auth.getUser();
+  const user = getUser();
 
   const navigate = useNavigate();
   function handleLogout() {
-    api.auth.logout();
+    logout();
     navigate("/login");
   }
 
