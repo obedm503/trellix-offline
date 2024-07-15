@@ -10,7 +10,8 @@
     "allowJs": true,
     "noEmit": true,
     "strict": true,
-    "types": ["vite/client"],
+    "skipLibCheck": true,
+    "types": ["vite/client", "@types/bun"],
     "isolatedModules": true,
     "paths": {
       "shared/*": ["./shared/*"]

@@ -84,3 +84,33 @@ export type schema = {
   list: List;
   list_item: ListItem;
 };
+
+export type ReplicacheClientGroup = {
+  id: string;
+  created: string;
+  updated: string;
+  cvr_version: number;
+  created_by: string;
+  replicache_id: string;
+};
+export type ReplicacheClientGroupInput = {
+  cvr_version: number;
+  created_by: string;
+  replicache_id: string;
+};
+
+export type ReplicacheClient = {
+  id: string;
+  created: string;
+  updated: string;
+  replicache_id: string;
+  last_mutation_id: number;
+  client_group_replicache_id: string;
+  created_by: string;
+};
+export type ReplicacheClientInput = {
+  replicache_id: string;
+  last_mutation_id: number;
+  client_group_replicache_id: string;
+  created_by: string;
+};

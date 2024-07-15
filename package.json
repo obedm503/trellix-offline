@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.2.1",
     "@atlaskit/pragmatic-drag-and-drop-auto-scroll": "^1.4.0",
@@ -11,20 +14,22 @@
     "@tailwindcss/typography": "^0.5.13",
     "@tanstack/solid-query": "^5.51.2",
     "@tanstack/solid-query-persist-client": "^5.51.2",
-    "@types/lodash-es": "^4.17.12",
     "autoprefixer": "^10.4.19",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "hono": "^4.4.13",
+    "hono-sessions": "^0.5.8",
     "idb-keyval": "^6.2.1",
     "lodash-es": "^4.17.21",
-    "lucide-solid": "^0.407.0",
+    "lucide-solid": "^0.408.0",
     "nanoid": "^5.0.7",
     "pocketbase": "^0.21.3",
     "postcss": "^8.4.39",
-    "prettier": "^3.3.2",
+    "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.5",
+    "replicache": "^14.2.2",
     "serve": "^14.2.3",
-    "signaldb": "^0.12.1",
+    "signaldb": "^0.12.2",
     "solid-js": "^1.8.18",
     "tailwind-merge": "^2.4.0",
     "tailwindcss": "^3.4.4",
@@ -42,5 +47,9 @@
   "type": "module",
   "workspaces": [
     "shared"
-  ]
+  ],
+  "devDependencies": {
+    "@types/bun": "^1.1.6",
+    "@types/lodash-es": "^4.17.12"
+  }
 }

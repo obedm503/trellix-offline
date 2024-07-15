@@ -1,0 +1,13 @@
+{
+  "name": "replicache",
+  "type": "module",
+  "scripts": {
+    "start": "bun run server/index.ts",
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "shared": "workspace:*"
+  }
+}
