@@ -48,7 +48,7 @@ export default function Boards() {
           <Match when={boards.data}>
             <ReorderList
               list={boards.data!}
-              canDelete={(item) => !!item.id}
+              canDelete={(item) => !!item.created}
               find={(item, target) => item.public_id === target.public_id}
               delete={async (item) => {
                 if (item.id) {

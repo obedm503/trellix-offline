@@ -37,7 +37,7 @@ export default function Boards() {
       {(props) => (
         <ReorderList
           list={boards()}
-          canDelete={(item) => !!item.id}
+          canDelete={(item) => !!item.created}
           find={(item, target) => item.public_id === target.public_id}
           delete={async (item) => {
             if (item.id) {

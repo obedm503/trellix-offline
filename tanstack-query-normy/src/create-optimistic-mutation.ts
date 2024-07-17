@@ -33,13 +33,15 @@ export function createOptimisticMutation<Input extends Op, Output = unknown>(
         .filter((item) => item._op === "create")
         .map((item) => omit(item, "_op"));
 
-      const optimisticData = rollbackData
-        ?.filter((item) => !deletes.includes(item.public_id))
-        .map((item) =>
-          item.public_id
-            ? Object.assign(item, updatesMap[item.public_id])
-            : item,
-        );
+      const optimisticData = rollbackData?.map((item) => {
+        if (deletes.includes(item.public_id)) {
+          return Object.assign(item, { deleted: true });
+        }
+
+        return item.public_id
+          ? Object.assign(item, updatesMap[item.public_id])
+          : item;
+      });
 
       optimisticData?.push(...creates);
 

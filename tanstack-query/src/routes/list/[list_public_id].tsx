@@ -76,7 +76,7 @@ export default function ListDetail(props: RouteSectionProps) {
           <Match when={list_items.data}>
             <ReorderList
               list={list_items.data!}
-              canDelete={(item) => !!item.id}
+              canDelete={(item) => !!item.created}
               find={(item, target) => item.public_id === target.public_id}
               delete={async (item) => {
                 if (!!item.id) {
