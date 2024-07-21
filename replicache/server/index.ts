@@ -14,14 +14,16 @@ const app = new Hono<{
   };
 }>();
 
-const db = new Database("./sessions.db");
+const db = new Database(
+  process.env.NODE_ENV === "production" ? "/data/sessions.db" : "./sessions.db",
+);
 const store = new BunSqliteStore(db);
 
 app.use(
   sessionMiddleware({
     store,
     // encryptionKey: "password_at_least_32_characters_long", // Required for CookieStore, recommended for others
-    // expireAfterSeconds: 900, // Expire session after 15 minutes of inactivity
+    expireAfterSeconds: 14 * 24 * 60, // Expire session after 14 days of inactivity
     cookieOptions: {
       sameSite: "Lax", // Recommended for basic CSRF protection in modern browsers
       path: "/", // Required for this library to work properly
@@ -31,11 +33,12 @@ app.use(
 );
 
 function getPocketbase(token: string) {
-  if (!process.env.VITE_POCKETBASE_URL) {
-    throw new Error("VITE_POCKETBASE_URL not defined");
+  if (!process.env.POCKETBASE_PRIVATE_URL) {
+    throw new Error("POCKETBASE_PRIVATE_URL not defined");
   }
+  console.log("POCKETBASE_PRIVATE_URL", process.env.POCKETBASE_PRIVATE_URL);
 
-  const pb = new PocketBase(process.env.VITE_POCKETBASE_URL);
+  const pb = new PocketBase(process.env.POCKETBASE_PRIVATE_URL);
   pb.authStore.save(token);
   pb.autoCancellation(false);
 
