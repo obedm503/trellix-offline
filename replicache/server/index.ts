@@ -23,7 +23,7 @@ app.use(
   sessionMiddleware({
     store,
     // encryptionKey: "password_at_least_32_characters_long", // Required for CookieStore, recommended for others
-    expireAfterSeconds: 14 * 24 * 60, // Expire session after 14 days of inactivity
+    expireAfterSeconds: 15 * 24 * 60, // Expire session after 15 days of inactivity
     cookieOptions: {
       sameSite: "Lax", // Recommended for basic CSRF protection in modern browsers
       path: "/", // Required for this library to work properly
