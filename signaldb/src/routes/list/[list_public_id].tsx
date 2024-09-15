@@ -5,19 +5,20 @@ import { ScrollableCardLayout } from "shared/scrollable-card-layout";
 import { Checkbox } from "shared/ui/checkbox";
 import { TextField, TextFieldInput } from "shared/ui/text-field";
 import { createEffect, createMemo, createSignal, onCleanup } from "solid-js";
-import { collections } from "../../collections";
+import { useCollections } from "../../collections";
 
 export default function ListDetail(props: RouteSectionProps) {
   const list_public_id = () => props.params.list_public_id;
 
-  const list = createMemo(() =>
-    collections.list.findOne({ public_id: list_public_id() }),
+  const { list, list_item } = useCollections();
+  const currentList = createMemo(() =>
+    list.findOne({ public_id: list_public_id() }),
   );
 
   createEffect(() => {
     const currentTitle = document.title;
 
-    const name = list()?.name;
+    const name = currentList()?.name;
     if (name) {
       document.title = name;
     }
@@ -28,7 +29,7 @@ export default function ListDetail(props: RouteSectionProps) {
   });
 
   const list_items = createMemo(() =>
-    collections.list_item
+    list_item
       .find(
         {
           "expand.list.public_id": list_public_id(),
@@ -41,11 +42,11 @@ export default function ListDetail(props: RouteSectionProps) {
 
   return (
     <ScrollableCardLayout
-      title={list()?.name}
+      title={currentList()?.name}
       onAddItem={(text) => {
-        collections.list_item.insert({
+        list_item.insert({
           id: pocketbaseId(),
-          list: list()!.id,
+          list: currentList()!.id,
           text,
           public_id: publicId(),
           expand: { list: { public_id: list_public_id() } },
@@ -60,20 +61,14 @@ export default function ListDetail(props: RouteSectionProps) {
           find={(item, target) => item.public_id === target.public_id}
           delete={async (item) => {
             if (!!item.id) {
-              collections.list_item.updateOne(
-                { id: item.id },
-                { $set: { deleted: true } },
-              );
+              list_item.updateOne({ id: item.id }, { $set: { deleted: true } });
             }
           }}
           update={async (items) => {
             const list = items.filter((item) => !!item.id);
             for (let i = 0; i < list.length; i++) {
               const item = list[i];
-              collections.list_item.updateOne(
-                { id: item.id },
-                { $set: { order: i } },
-              );
+              list_item.updateOne({ id: item.id }, { $set: { order: i } });
             }
           }}
           itemId={(item) => item.public_id}
@@ -83,7 +78,7 @@ export default function ListDetail(props: RouteSectionProps) {
             const [text, setText] = createSignal(props.item.text);
             function onFocusOut() {
               if (props.item.text !== text().trim()) {
-                collections.list_item.updateOne(
+                list_item.updateOne(
                   { id: props.item.id },
                   { $set: { text: text().trim() } },
                 );
@@ -98,7 +93,7 @@ export default function ListDetail(props: RouteSectionProps) {
                   checked={!!props.item.done}
                   onChange={(checked) => {
                     if (!!props.item.id) {
-                      collections.list_item.updateOne(
+                      list_item.updateOne(
                         { public_id: props.item.public_id },
                         { $set: { done: checked } },
                       );

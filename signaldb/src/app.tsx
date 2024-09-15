@@ -3,7 +3,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import * as auth from "shared/api/auth";
 import { Nav } from "shared/nav";
 import { Toaster } from "shared/ui/toast";
-import { lazy, onMount, Suspense } from "solid-js";
+import { lazy, onMount, Show, Suspense } from "solid-js";
+import { CollectionsProvider, createCollections } from "./collections";
 
 const routes: RouteDefinition[] = [
   {
@@ -52,7 +53,19 @@ export function App() {
             <div class="flex h-screen w-screen flex-col gap-2">
               <Nav />
 
-              <Suspense>{props.children}</Suspense>
+              <Suspense>
+                <Show
+                  when={
+                    props.location.pathname !== "/login" &&
+                    props.location.pathname !== "/register"
+                  }
+                  fallback={props.children}
+                >
+                  <CollectionsProvider value={createCollections()}>
+                    {props.children}
+                  </CollectionsProvider>
+                </Show>
+              </Suspense>
             </div>
 
             <Toaster />

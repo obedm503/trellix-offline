@@ -5,7 +5,7 @@ import type { Column, Item } from "shared/board/context";
 import { pocketbaseId, publicId } from "shared/nanoid";
 import { scroll } from "shared/scrollable-card-layout";
 import { createEffect, createMemo, onCleanup } from "solid-js";
-import { collections } from "../../collections";
+import { useCollections } from "../../collections";
 
 export default function Boards(props: RouteSectionProps) {
   createEffect(() => {
@@ -17,12 +17,13 @@ export default function Boards(props: RouteSectionProps) {
   });
 
   const board_public_id = () => props.params.board_public_id;
-  const board = createMemo(() =>
-    collections.board.findOne({ public_id: board_public_id() }),
+  const { board, board_item, board_column } = useCollections();
+  const currentBoard = createMemo(() =>
+    board.findOne({ public_id: board_public_id() }),
   );
 
   const items = createMemo(() =>
-    collections.board_item
+    board_item
       .find(
         {
           "expand.column.expand.board.public_id": board_public_id(),
@@ -42,7 +43,7 @@ export default function Boards(props: RouteSectionProps) {
   });
 
   const columns = createMemo(() =>
-    collections.board_column
+    board_column
       .find(
         { "expand.board.public_id": board_public_id(), deleted: { $ne: true } },
         { sort: { order: 1 } },
@@ -92,7 +93,7 @@ export default function Boards(props: RouteSectionProps) {
         items={rows()}
         onItemCreated={(item) => {
           const col = columnMap()[item.columnPublicId];
-          collections.board_item.insert({
+          board_item.insert({
             id: pocketbaseId(),
             text: item.text,
             public_id: publicId(),
@@ -105,7 +106,7 @@ export default function Boards(props: RouteSectionProps) {
         }}
         onItemsUpdated={(updated) => {
           for (const item of updated) {
-            collections.board_item.updateOne(
+            board_item.updateOne(
               { id: itemMap()[item.publicId].id },
               {
                 $set: {
@@ -118,15 +119,15 @@ export default function Boards(props: RouteSectionProps) {
           }
         }}
         onItemDeleted={(itemId) => {
-          collections.board_item.updateOne(
+          board_item.updateOne(
             { id: itemMap()[itemId].id },
             { $set: { deleted: true } },
           );
         }}
         onColumnCreated={(col) => {
-          collections.board_column.insert({
+          board_column.insert({
             id: pocketbaseId(),
-            board: board()!.id,
+            board: currentBoard()!.id,
             name: col.text,
             public_id: publicId(),
             order: columns().length,
@@ -137,14 +138,14 @@ export default function Boards(props: RouteSectionProps) {
         }}
         onColumnsUpdated={(updated) => {
           for (const col of updated) {
-            collections.board_column.updateOne(
+            board_column.updateOne(
               { id: columnMap()[col.publicId].id },
               { $set: { order: col.order, name: col.text } },
             );
           }
         }}
         onColumnDeleted={(columnId) => {
-          collections.board_column.updateOne(
+          board_column.updateOne(
             { id: columnMap()[columnId].id },
             { $set: { deleted: true } },
           );

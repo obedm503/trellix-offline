@@ -5,7 +5,7 @@ import { ScrollableCardLayout } from "shared/scrollable-card-layout";
 import { Button } from "shared/ui/button";
 import { TextField, TextFieldInput } from "shared/ui/text-field";
 import { createEffect, createMemo, createSignal, onCleanup } from "solid-js";
-import { collections } from "../../collections";
+import { useCollections } from "../../collections";
 
 export default function Lists() {
   createEffect(() => {
@@ -16,17 +16,16 @@ export default function Lists() {
     });
   });
 
+  const { list } = useCollections();
   const lists = createMemo(() =>
-    collections.list
-      .find({ deleted: { $ne: true } }, { sort: { order: 1 } })
-      .fetch(),
+    list.find({ deleted: { $ne: true } }, { sort: { order: 1 } }).fetch(),
   );
 
   return (
     <ScrollableCardLayout
       title="Lists"
       onAddItem={(name) => {
-        collections.list.insert({
+        list.insert({
           id: pocketbaseId(),
           name,
           public_id: publicId(),
@@ -41,20 +40,14 @@ export default function Lists() {
           find={(item, target) => item.public_id === target.public_id}
           delete={async (item) => {
             if (item.id) {
-              collections.list.updateOne(
-                { id: item.id },
-                { $set: { deleted: true } },
-              );
+              list.updateOne({ id: item.id }, { $set: { deleted: true } });
             }
           }}
-          update={async (items) => {
-            const list = items.filter((item) => !!item.id);
-            for (let i = 0; i < list.length; i++) {
-              const item = list[i];
-              collections.list.updateOne(
-                { id: item.id },
-                { $set: { order: i } },
-              );
+          update={async (lists) => {
+            const items = lists.filter((item) => !!item.id);
+            for (let i = 0; i < items.length; i++) {
+              const item = items[i];
+              list.updateOne({ id: item.id }, { $set: { order: i } });
             }
           }}
           itemId={(item) => item.public_id}
@@ -64,7 +57,7 @@ export default function Lists() {
             const [text, setText] = createSignal(props.item.name);
             function onFocusOut() {
               if (props.item.name !== text().trim()) {
-                collections.list.updateOne(
+                list.updateOne(
                   { id: props.item.id },
                   { $set: { name: text().trim() } },
                 );
