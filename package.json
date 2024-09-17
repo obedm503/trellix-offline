@@ -30,7 +30,7 @@
     "prettier-plugin-tailwindcss": "^0.6.5",
     "replicache": "^14.2.2",
     "serve": "^14.2.3",
-    "signaldb": "^0.20.0",
+    "signaldb": "^0.20.1",
     "signaldb-plugin-solid": "^1.0.5",
     "solid-js": "^1.8.18",
     "tailwind-merge": "^2.4.0",

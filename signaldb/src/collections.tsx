@@ -6,11 +6,39 @@ import type {
   ListItem,
 } from "shared/api/schema";
 import { showToast } from "shared/ui/toast";
-import { Collection, combinePersistenceAdapters } from "signaldb";
-import reactivity from "signaldb-plugin-solid";
+import {
+  Collection,
+  combinePersistenceAdapters,
+  createReactivityAdapter,
+} from "signaldb";
+import {
+  createContext,
+  createEffect,
+  createSignal,
+  getOwner,
+  onCleanup,
+  useContext,
+} from "solid-js";
 import { idbPersister } from "./idb-persister";
 import { pocketbaseReplication } from "./pocketbase-replication";
-import { createContext, useContext } from "solid-js";
+
+const reactivity = createReactivityAdapter({
+  create: () => {
+    const [depend, rerun] = createSignal(undefined, { equals: false });
+    return {
+      depend: () => {
+        depend();
+      },
+      notify: () => {
+        rerun();
+      },
+    };
+  },
+  isInScope: () => !!getOwner(),
+  onDispose: (callback) => {
+    onCleanup(callback);
+  },
+});
 
 function errorHandler(error: Error) {
   if (error.message.includes("autocancelled")) {
@@ -27,7 +55,6 @@ function errorHandler(error: Error) {
 
 export function createCollections() {
   const board = new Collection<Board>({
-    memory: [],
     reactivity,
     persistence: combinePersistenceAdapters(
       pocketbaseReplication("board"),
@@ -38,7 +65,6 @@ export function createCollections() {
   const board_column = new Collection<
     BoardColumn & { expand: { board: { public_id: string } } }
   >({
-    memory: [],
     reactivity,
     persistence: combinePersistenceAdapters(
       pocketbaseReplication("board_column", {
@@ -54,7 +80,6 @@ export function createCollections() {
       expand: { column: { expand: { board: { public_id: string } } } };
     }
   >({
-    memory: [],
     reactivity,
     persistence: combinePersistenceAdapters(
       pocketbaseReplication("board_item", {
@@ -70,7 +95,6 @@ export function createCollections() {
   }).on("persistence.error", errorHandler);
 
   const list = new Collection<List>({
-    memory: [],
     reactivity,
     persistence: combinePersistenceAdapters(
       pocketbaseReplication("list"),
@@ -81,7 +105,6 @@ export function createCollections() {
   const list_item = new Collection<
     ListItem & { expand: { list: { public_id: string } } }
   >({
-    memory: [],
     reactivity,
     persistence: combinePersistenceAdapters(
       pocketbaseReplication("list_item", {
@@ -104,7 +127,7 @@ export function useCollections(): Collections {
 
   if (!collections) {
     throw new Error(
-      "`useCollection` must be used within the `CollectionsProvider`",
+      "`useCollection` must be used within a `CollectionsProvider`",
     );
   }
 
