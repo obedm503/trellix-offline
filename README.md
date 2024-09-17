@@ -11,10 +11,13 @@ These are a set of experiments to compare different local-first libraries. The c
 - Remote change subscription
 - Cross-tab sync
 - Schemaless but with TypeScript support
+- Store offline cache in IndexedDB
 
 ### Ideal features
 
 - Infinite queries for searching larger datasets
+- Network awareness to pause and resume sync
+- Field-level conflict resolution: Multiple updates to the same row should succeed as long as they mutate different fields.
 
 <details>
   <summary>Implementation details</summary>
@@ -74,7 +77,9 @@ This is the same as the baseline app except it integrates [`normy`](https://gith
 
 ## SignalDB ([App](https://trellix-signaldb.up.railway.app/), [Source](https://github.com/obedm503/trellix-offline/tree/master/signaldb))
 
-Uses [SignalDB](https://github.com/maxnowack/signaldb) to intermediate interactions to the server. SignalDB syncs an entire subset of a db table that the user may have access to. When a change occurs to the client's copy, Signaldb provides a hook for you to implement storing/pushing those changes to the authoritative source. Signaldb also provides a hook to subscribe to remote changes. Right now it reloads the entire dataset on a change, but will soon integrate remote changes ([#776](https://github.com/maxnowack/signaldb/pull/776)). Signaldb also allows defining a local persister to show data on the initial load.
+Uses [SignalDB](https://github.com/maxnowack/signaldb) to intermediate interactions to the server. SignalDB syncs an entire subset of a db table that the user may have access to. When a change occurs to the client's copy, Signaldb provides a hook for you to implement storing/pushing those changes to the authoritative source. Signaldb provides a hook to subscribe to remote changes. Signaldb allows defining a local persister to show data immediately.
+
+Update since [v0.20.0](https://github.com/maxnowack/signaldb/releases/tag/v0.20.0): SignalDB added the [`SyncManager`](https://signaldb.js.org/sync/). `SyncManager` handles batching, retries, and last-write-wins replication.
 
 ### Pros
 
@@ -84,22 +89,21 @@ Uses [SignalDB](https://github.com/maxnowack/signaldb) to intermediate interacti
 - Cross-client (tab and device) synchronization
 - Simple yet powerful query API
 - Allows only updating changed rows after a change
+- Replication retry. New in [v0.20.0](https://github.com/maxnowack/signaldb/releases/tag/v0.20.0)
+- Batching. New in [v0.20.0](https://github.com/maxnowack/signaldb/releases/tag/v0.20.0)
+- Pulls, integrates local changes, and pushes. New in [v0.20.0](https://github.com/maxnowack/signaldb/releases/tag/v0.20.0)
 
 ### Cons
 
 - SignalDB is pre-1.0
 - Loads all datasets on startup. There is an [`AutoFetchCollection`](https://signaldb.js.org/replication/#autofetchcollection) that loads until requested, but it's meant for loading a different dataset for each query.
-- No built-in replication retry
-- Not local-first out of the box
-- No way to mark changes as confirmed or not
+- ~~No built-in replication retry~~ Added in [v0.20.0](https://github.com/maxnowack/signaldb/releases/tag/v0.20.0)
+- ~~Not local-first out of the box~~ Added in [v0.20.0](https://github.com/maxnowack/signaldb/releases/tag/v0.20.0)
+- ~~No way to mark changes as confirmed or not~~ Added in [v0.20.0](https://github.com/maxnowack/signaldb/releases/tag/v0.20.0)
 - No way to clear and reload a collection
-- No transaction API
-
-#### Ideally
-
-- Make multiple changes to a collection in a transaction
-- All changes get pushed together
-- Push response confirms changes, pulls, updates CVR
+- No way to unmount a collection after logout
+- No transaction API to group inter-dependent cross-collection changes together
+- Not aware of network connection. It should pause syncing if offline and resume when online
 
 <a id="replicache"></a>
 
@@ -119,30 +123,33 @@ This experiment does some things differently from the `todo-row-versioning` exam
 - Local-first backed by IndexedDB
 - Cross-client (tab and device) sync
 - Server knows exactly what the client loaded so it can send minimal patches
+- Aware of network connection. Pauses syncing if offline and resumes when online
 
 ### Cons
 
-- No Solid bindings
+- No Solid integration
 - Not reactive. `subscribe` does not react to external data changes
-- Not open source, [for now](https://x.com/aboodman/status/1808186642915905947)
-- Basic querying API based on an item's cache key prefix
+- Not open source, [for now?](https://x.com/aboodman/status/1808186642915905947)
+- Limited querying API based on an item's cache key prefix
 - May be tricky to extend to hundreds of entities
 
 ## Developing
 
-Once you've created a project and installed dependencies with `bun install`, start a development server:
+Run `bun install` at the root.
+
+To start a development server:
 
 ```bash
-bun run dev
+cd <experiment directory>
+
+bun dev
 
 # or start the server and open the app in a new browser tab
-bun run dev -- --open
+bun dev -- --open
 ```
 
 ## Building
 
-Solid apps are built with _presets_, which optimize your project for deployment to different environments.
-
-By default, `bun run build` will generate a Node app that you can run with `bun start`. To use a different preset, add it to the `devDependencies` in `package.json` and specify in your `app.config.js`.
+Run `bun run build` in the specific experiment directory. You can preview the built app with `bun start`.
 
 ## This project was created with the [Solid CLI](https://solid-cli.netlify.app)

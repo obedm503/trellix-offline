@@ -4,7 +4,7 @@ import * as auth from "shared/api/auth";
 import { Nav } from "shared/nav";
 import { Toaster } from "shared/ui/toast";
 import { lazy, onMount, Show, Suspense } from "solid-js";
-import { CollectionsProvider, createCollections } from "./collections";
+import { CollectionsProvider } from "./collections";
 
 const routes: RouteDefinition[] = [
   {
@@ -61,9 +61,7 @@ export function App() {
                   }
                   fallback={props.children}
                 >
-                  <CollectionsProvider value={createCollections()}>
-                    {props.children}
-                  </CollectionsProvider>
+                  <CollectionsProvider>{props.children}</CollectionsProvider>
                 </Show>
               </Suspense>
             </div>

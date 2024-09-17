@@ -1,7 +1,8 @@
-import { CommonOptions, ListOptions, RecordOptions } from "pocketbase";
+import type { CommonOptions, ListOptions, RecordOptions } from "pocketbase";
 import { pb } from "shared/api/pb";
-import { User } from "shared/api/schema";
-import { createPersistenceAdapter } from "signaldb";
+import type { User } from "shared/api/schema";
+import { PersistenceAdapter, ReactivityAdapter, SyncManager } from "signaldb";
+import { getOwner, onCleanup, runWithOwner } from "solid-js";
 
 type Config = { expand?: string[]; fields?: string[] };
 function getOptions(config: Config = {}) {
@@ -17,50 +18,114 @@ function getOptions(config: Config = {}) {
   return options;
 }
 
-export function pocketbaseReplication<
-  T extends { id: string; deleted: boolean },
->(collectionName: string, config: Config = {}) {
-  const options = getOptions(config);
+type Options = {
+  persistenceAdapter(id: string): PersistenceAdapter<any, any>;
+  reactivity: ReactivityAdapter;
+  onError(error: Error): void;
+  sendOptions: Record<string, Config>;
+};
 
-  return createPersistenceAdapter<T, string>({
-    async register(onChange) {
+export function createPocketbaseSyncManager<
+  T extends {
+    id: string;
+    created: string;
+    updated: string;
+    deleted: boolean;
+  },
+>({ onError, reactivity, persistenceAdapter, sendOptions }: Options) {
+  return new SyncManager<{ name: string }, T>({
+    persistenceAdapter,
+    reactivity,
+    onError,
+    async registerRemoteChange(onChange) {
       // TODO: signaldb has no way to "unload" a collection to cleanup subscriptions
-      // this causes a memory leak in development with HMR
-      const unsub = await pb.collection<T>(collectionName).subscribe(
-        "*",
-        (e) => {
-          if (e.action === "update") {
-            void onChange({
-              changes: { modified: [e.record], added: [], removed: [] },
-            });
-            return;
-          }
+      // using solid's runWithOwner + onCleanup to cleanup subscriptions
+      const owner = getOwner();
 
-          if (e.action === "create") {
-            void onChange({
-              changes: { modified: [], added: [e.record], removed: [] },
-            });
+      for (const collectionName of Object.keys(sendOptions)) {
+        const unsub = await pb
+          .collection<T & { collectionName: string }>(collectionName)
+          .subscribe(
+            "*",
+            (e) => {
+              if (e.action === "update") {
+                void onChange(e.record.collectionName, {
+                  changes: { modified: [e.record], added: [], removed: [] },
+                });
+                return;
+              }
 
-            return;
-          }
+              if (e.action === "create") {
+                void onChange(e.record.collectionName, {
+                  changes: { modified: [], added: [e.record], removed: [] },
+                });
 
-          void onChange();
-        },
-        options,
-      );
+                return;
+              }
+
+              void onChange(e.record.collectionName);
+            },
+            getOptions(sendOptions[collectionName]),
+          );
+
+        runWithOwner(owner, () => {
+          onCleanup(unsub);
+        });
+      }
     },
-    async load() {
+    async pull({ name: collectionName }, { lastFinishedSyncEnd }) {
+      if (!navigator.onLine) {
+        // skip pull if offline
+        throw new Error("offline");
+      }
+
       const user = pb.authStore.model as User | null;
       if (!user) {
         throw new Error("Unauthorized");
       }
 
+      const lastSync = lastFinishedSyncEnd
+        ? new Date(lastFinishedSyncEnd).toISOString()
+        : undefined;
+
+      const options = getOptions(sendOptions[collectionName]);
+      const filter = lastSync
+        ? // include deleted since last sync
+          pb.filter("created >= {:date} || updated >= {:date}", {
+            date: lastSync,
+          })
+        : "deleted != true";
+
       const items = await pb
         .collection<T>(collectionName)
-        .getFullList({ ...options, filter: "deleted != true" });
+        .getFullList({ ...options, filter });
+
+      if (lastSync) {
+        const added = [];
+        const modified = [];
+        const removed = [];
+
+        for (const item of items) {
+          if (item.deleted) {
+            removed.push(item);
+          } else if (item.created >= lastSync) {
+            added.push(item);
+          } else {
+            modified.push(item);
+          }
+        }
+
+        return { changes: { added, modified, removed } };
+      }
+
       return { items };
     },
-    async save(items, changes) {
+    async push({ name: collectionName }, { changes }) {
+      if (!navigator.onLine) {
+        // skip push if offline
+        throw new Error("offline");
+      }
+
       const user = pb.authStore.model as User | null;
       if (!user) {
         throw new Error("Unauthorized");
