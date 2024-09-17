@@ -16,6 +16,7 @@ import {
   TextFieldInput,
   TextFieldLabel,
 } from "../ui/text-field";
+import { Alert, AlertDescription, AlertTitle } from "shared/ui/alert";
 
 export default function LoginRoute(props: RouteSectionProps) {
   const navigate = useNavigate();
@@ -57,9 +58,18 @@ export default function LoginRoute(props: RouteSectionProps) {
             <CardTitle>Login</CardTitle>
           </CardHeader>
           <CardContent>
+            <Alert>
+              <AlertTitle>Heads up!</AlertTitle>
+              <AlertDescription>
+                If you registered at a different Trellix you can reuse the same
+                credentials here.
+              </AlertDescription>
+            </Alert>
+
             <TextField validationState={login.error ? "invalid" : "valid"}>
               <TextFieldLabel>Username</TextFieldLabel>
               <TextFieldInput
+                placeholder="Username"
                 name="username"
                 type="text"
                 autocomplete="username"
@@ -67,9 +77,11 @@ export default function LoginRoute(props: RouteSectionProps) {
                 maxLength={20}
               />
             </TextField>
+
             <TextField validationState={login.error ? "invalid" : "valid"}>
               <TextFieldLabel>Password</TextFieldLabel>
               <TextFieldInput
+                placeholder="Password"
                 name="password"
                 type="password"
                 autocomplete="current-password"
@@ -92,7 +104,7 @@ export default function LoginRoute(props: RouteSectionProps) {
             </Button>
 
             <p>
-              Don't have an account?{" "}
+              Don't have a Trellix account?{" "}
               <a href="/register" class="text-info-foreground underline">
                 Register
               </a>
