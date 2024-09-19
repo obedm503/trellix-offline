@@ -24,11 +24,6 @@ function errorHandler(error: Error) {
     return;
   }
 
-  if (error.message === "offline") {
-    // sync will continue once back online
-    return;
-  }
-
   showToast({
     title: error.name,
     description: error.message,
@@ -41,26 +36,6 @@ function createCollections() {
     reactivity,
     persistenceAdapter: (id) => idbPersister(id),
     onError: errorHandler,
-    sendOptions: {
-      board: {},
-      board_column: {
-        expand: ["board"],
-        fields: ["*", "expand.board.public_id"],
-      },
-      board_item: {
-        expand: ["column.board"],
-        fields: [
-          "*",
-          "expand.column.public_id",
-          "expand.column.expand.board.public_id",
-        ],
-      },
-      list: {},
-      list_item: {
-        expand: ["list"],
-        fields: ["*", "expand.list.public_id"],
-      },
-    },
   });
 
   const board = new Collection<Board>({
@@ -75,7 +50,11 @@ function createCollections() {
     reactivity,
     persistence: idbPersister("board_column"),
   }).on("persistence.error", errorHandler);
-  syncManager.addCollection(board_column, { name: "board_column" });
+  syncManager.addCollection(board_column, {
+    name: "board_column",
+    expand: ["board"],
+    fields: ["*", "expand.board.public_id"],
+  });
 
   const board_item = new Collection<
     BoardItem & {
@@ -85,7 +64,15 @@ function createCollections() {
     reactivity,
     persistence: idbPersister("board_item"),
   }).on("persistence.error", errorHandler);
-  syncManager.addCollection(board_item, { name: "board_item" });
+  syncManager.addCollection(board_item, {
+    name: "board_item",
+    expand: ["column.board"],
+    fields: [
+      "*",
+      "expand.column.public_id",
+      "expand.column.expand.board.public_id",
+    ],
+  });
 
   const list = new Collection<List>({
     reactivity,
@@ -99,7 +86,11 @@ function createCollections() {
     reactivity,
     persistence: idbPersister("list_item"),
   }).on("persistence.error", errorHandler);
-  syncManager.addCollection(list_item, { name: "list_item" });
+  syncManager.addCollection(list_item, {
+    name: "list_item",
+    expand: ["list"],
+    fields: ["*", "expand.list.public_id"],
+  });
 
   return {
     syncManager,
@@ -149,12 +140,20 @@ export function CollectionsProvider(props: { children: JSXElement }) {
   createEffect(async () => {
     // delay sync until syncManager metadata is in memory
     await syncManagerReady;
-    await collections.syncManager.syncAll();
+    await collections.syncManager.startSyncAll();
   });
 
   // restart sync when browser comes back online
+  function offline() {
+    collections.syncManager.pauseSyncAll();
+  }
+  addEventListener("offline", offline);
+  onCleanup(() => {
+    removeEventListener("offline", offline);
+  });
+
   function online() {
-    collections.syncManager.syncAll();
+    collections.syncManager.startSyncAll();
   }
   addEventListener("online", online);
   onCleanup(() => {

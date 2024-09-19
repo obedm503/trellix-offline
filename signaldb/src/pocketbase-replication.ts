@@ -2,7 +2,6 @@ import type { CommonOptions, ListOptions, RecordOptions } from "pocketbase";
 import { pb } from "shared/api/pb";
 import type { User } from "shared/api/schema";
 import { PersistenceAdapter, ReactivityAdapter, SyncManager } from "signaldb";
-import { getOwner, onCleanup, runWithOwner } from "solid-js";
 
 type Config = { expand?: string[]; fields?: string[] };
 function getOptions(config: Config) {
@@ -22,7 +21,6 @@ type Options = {
   persistenceAdapter(id: string): PersistenceAdapter<any, any>;
   reactivity: ReactivityAdapter;
   onError(error: Error): void;
-  sendOptions: Record<string, Config>;
 };
 
 export function createPocketbaseSyncManager<
@@ -32,53 +30,46 @@ export function createPocketbaseSyncManager<
     updated: string;
     deleted: boolean;
   },
->({ onError, reactivity, persistenceAdapter, sendOptions }: Options) {
-  return new SyncManager<{ name: string }, T>({
+>({ onError, reactivity, persistenceAdapter }: Options) {
+  return new SyncManager<Config & { name: string }, T>({
     persistenceAdapter,
     reactivity,
     onError,
-    async registerRemoteChange(onChange) {
-      // TODO: signaldb has no way to "unload" a collection to cleanup subscriptions
-      // using solid's runWithOwner + onCleanup to cleanup subscriptions
-      const owner = getOwner();
+    async registerRemoteChange(
+      { name: collectionName, ...sendOptions },
+      onChange,
+    ) {
+      const cleanup = await pb
+        .collection<T & { collectionName: string }>(collectionName)
+        .subscribe(
+          "*",
+          (e) => {
+            if (e.action === "update") {
+              void onChange({
+                changes: { modified: [e.record], added: [], removed: [] },
+              });
+              return;
+            }
 
-      for (const collectionName of Object.keys(sendOptions)) {
-        const unsub = await pb
-          .collection<T & { collectionName: string }>(collectionName)
-          .subscribe(
-            "*",
-            (e) => {
-              if (e.action === "update") {
-                void onChange(e.record.collectionName, {
-                  changes: { modified: [e.record], added: [], removed: [] },
-                });
-                return;
-              }
+            if (e.action === "create") {
+              void onChange({
+                changes: { modified: [], added: [e.record], removed: [] },
+              });
 
-              if (e.action === "create") {
-                void onChange(e.record.collectionName, {
-                  changes: { modified: [], added: [e.record], removed: [] },
-                });
+              return;
+            }
 
-                return;
-              }
+            void onChange();
+          },
+          getOptions(sendOptions),
+        );
 
-              void onChange(e.record.collectionName);
-            },
-            getOptions(sendOptions[collectionName]),
-          );
-
-        runWithOwner(owner, () => {
-          onCleanup(unsub);
-        });
-      }
+      return cleanup;
     },
-    async pull({ name: collectionName }, { lastFinishedSyncEnd }) {
-      if (!navigator.onLine) {
-        // skip pull if offline
-        throw new Error("offline");
-      }
-
+    async pull(
+      { name: collectionName, ...sendOptions },
+      { lastFinishedSyncEnd },
+    ) {
       const user = pb.authStore.model as User | null;
       if (!user) {
         throw new Error("Unauthorized");
@@ -88,7 +79,7 @@ export function createPocketbaseSyncManager<
         ? new Date(lastFinishedSyncEnd).toISOString()
         : undefined;
 
-      const options = getOptions(sendOptions[collectionName]);
+      const options = getOptions(sendOptions);
       const filter = lastSync
         ? // include deleted since last sync
           pb.filter("created >= {:date} || updated >= {:date}", {
@@ -121,11 +112,6 @@ export function createPocketbaseSyncManager<
       return { items };
     },
     async push({ name: collectionName }, { changes }) {
-      if (!navigator.onLine) {
-        // skip push if offline
-        throw new Error("offline");
-      }
-
       const user = pb.authStore.model as User | null;
       if (!user) {
         throw new Error("Unauthorized");
