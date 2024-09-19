@@ -5,7 +5,7 @@ import { PersistenceAdapter, ReactivityAdapter, SyncManager } from "signaldb";
 import { getOwner, onCleanup, runWithOwner } from "solid-js";
 
 type Config = { expand?: string[]; fields?: string[] };
-function getOptions(config: Config = {}) {
+function getOptions(config: Config) {
   const options: RecordOptions & CommonOptions & ListOptions = {
     sort: "order,created",
   };

@@ -6,36 +6,17 @@ import type {
   ListItem,
 } from "shared/api/schema";
 import { showToast } from "shared/ui/toast";
-import { Collection, createReactivityAdapter } from "signaldb";
+import { Collection } from "signaldb";
+import reactivity from "signaldb-plugin-solid";
 import {
   createContext,
   createEffect,
-  createSignal,
-  getOwner,
   JSXElement,
   onCleanup,
   useContext,
 } from "solid-js";
 import { idbPersister } from "./idb-persister";
 import { createPocketbaseSyncManager } from "./pocketbase-replication";
-
-const reactivity = createReactivityAdapter({
-  create: () => {
-    const [depend, rerun] = createSignal(undefined, { equals: false });
-    return {
-      depend: () => {
-        depend();
-      },
-      notify: () => {
-        rerun();
-      },
-    };
-  },
-  isInScope: () => !!getOwner(),
-  onDispose: (callback) => {
-    onCleanup(callback);
-  },
-});
 
 function errorHandler(error: Error) {
   if (error.message.includes("autocancelled")) {
