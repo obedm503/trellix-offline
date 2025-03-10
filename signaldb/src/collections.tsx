@@ -144,21 +144,14 @@ export function CollectionsProvider(props: { children: JSXElement }) {
   });
 
   // restart sync when browser comes back online
-  function offline() {
-    collections.syncManager.pauseSyncAll();
-  }
-  addEventListener("offline", offline);
-  onCleanup(() => {
-    removeEventListener("offline", offline);
+  const listen = new AbortController();
+  addEventListener("offline", () => collections.syncManager.pauseSyncAll(), {
+    signal: listen.signal,
   });
-
-  function online() {
-    collections.syncManager.startSyncAll();
-  }
-  addEventListener("online", online);
-  onCleanup(() => {
-    removeEventListener("online", online);
+  addEventListener("online", () => collections.syncManager.startSyncAll(), {
+    signal: listen.signal,
   });
+  onCleanup(() => listen.abort());
 
   return (
     <CollectionsContext.Provider value={collections}>
