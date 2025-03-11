@@ -24,6 +24,7 @@
     "clsx": "^2.1.1",
     "hono": "^4.4.13",
     "hono-sessions": "^0.5.8",
+    "idb-keyval": "^6.2.1",
     "lodash-es": "^4.17.21",
     "lucide-solid": "^0.408.0",
     "nanoid": "^5.0.7",
