@@ -77,14 +77,17 @@ This is the same as the baseline app except it integrates [`normy`](https://gith
 
 ## SignalDB ([App](https://trellix-signaldb.up.railway.app/), [Source](https://github.com/obedm503/trellix-offline/tree/master/signaldb))
 
-Uses [SignalDB](https://github.com/maxnowack/signaldb) to intermediate interactions to the server. SignalDB syncs an entire subset of a db table that the user may have access to. When a change occurs to the client's copy, Signaldb provides a hook for you to implement storing/pushing those changes to the authoritative source. Signaldb provides a hook to subscribe to remote changes. Signaldb allows defining a local persister to show data immediately.
+Uses [SignalDB](https://github.com/maxnowack/signaldb) to intermediate interactions to the server. SignalDB syncs an entire subset of a db table that the user may have access to. When a change occurs to the client's copy, Signaldb provides a hook for you to implement storing/pushing those changes to the authoritative source. Signaldb provides a hook to subscribe to remote changes. Signaldb allows defining a local persister to store and show data immediately.
 
 Update since [v0.20.0](https://github.com/maxnowack/signaldb/releases/tag/v0.20.0): SignalDB added the [`SyncManager`](https://signaldb.js.org/sync/). `SyncManager` handles batching, retries, and last-write-wins replication.
+
+[v1.0.0](https://github.com/maxnowack/signaldb/releases/tag/v1.0.0) released on 2024-12-16
 
 ### Pros
 
 - Loads entire dataset and operates on it locally
 - Instant changes without optimistic mutations
+- Local-first backed by IndexedDB
 - No loading states anywhere
 - Cross-client (tab and device) synchronization
 - Simple yet powerful query API
@@ -95,15 +98,15 @@ Update since [v0.20.0](https://github.com/maxnowack/signaldb/releases/tag/v0.20.
 
 ### Cons
 
-- SignalDB is pre-1.0
-- Loads all datasets on startup. There is an [`AutoFetchCollection`](https://signaldb.js.org/replication/#autofetchcollection) that loads until requested, but it's meant for loading a different dataset for each query.
+- ~~SignalDB is pre-1.0~~ [v1.0.0](https://github.com/maxnowack/signaldb/releases/tag/v1.0.0) released on 2024-12-16
+- ~~Loads all datasets on startup. There is an [`AutoFetchCollection`](https://signaldb.js.org/replication/#autofetchcollection) that loads until requested, but it's meant for loading a different dataset for each query.~~ Could be handled with the `SyncManager`'s `autostart` parameter.
 - ~~No built-in replication retry~~ Added in [v0.20.0](https://github.com/maxnowack/signaldb/releases/tag/v0.20.0)
 - ~~Not local-first out of the box~~ Added in [v0.20.0](https://github.com/maxnowack/signaldb/releases/tag/v0.20.0)
 - ~~No way to mark changes as confirmed or not~~ Added in [v0.20.0](https://github.com/maxnowack/signaldb/releases/tag/v0.20.0)
-- No way to clear and reload a collection
-- No way to unmount a collection after logout
+- ~~No way to clear and reload a collection~~ `dispose` method added in [v0.21.0](https://github.com/maxnowack/signaldb/releases/tag/v0.21.0)
+- ~~No way to unmount a collection after logout~~ `dispose` method added in [v0.21.0](https://github.com/maxnowack/signaldb/releases/tag/v0.21.0)
 - No transaction API to group inter-dependent cross-collection changes together
-- Not aware of network connection. It should pause syncing if offline and resume when online
+- ~~Not aware of network connection. It should pause syncing if offline and resume when online~~ `startAll` and `pauseAll` added in [`@signaldb/sync` `v1.1.0`](https://github.com/maxnowack/signaldb/blob/main/packages/base/sync/CHANGELOG.md#110---2025-01-13)
 
 <a id="replicache"></a>
 
