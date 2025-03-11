@@ -1,3 +1,6 @@
+import { Collection } from "@signaldb/core";
+import createIndexedDBAdapter from "@signaldb/indexeddb";
+import reactivity from "@signaldb/solid";
 import type {
   Board,
   BoardColumn,
@@ -6,8 +9,6 @@ import type {
   ListItem,
 } from "shared/api/schema";
 import { showToast } from "shared/ui/toast";
-import { Collection } from "signaldb";
-import reactivity from "signaldb-plugin-solid";
 import {
   createContext,
   createEffect,
@@ -15,7 +16,6 @@ import {
   onCleanup,
   useContext,
 } from "solid-js";
-import { idbPersister } from "./idb-persister";
 import { createPocketbaseSyncManager } from "./pocketbase-replication";
 
 function errorHandler(error: Error) {
@@ -34,13 +34,15 @@ function errorHandler(error: Error) {
 function createCollections() {
   const syncManager = createPocketbaseSyncManager({
     reactivity,
-    persistenceAdapter: (id) => idbPersister(id),
-    onError: errorHandler,
+    persistenceAdapter: (id) => createIndexedDBAdapter(id),
+    onError(options, error) {
+      errorHandler(error);
+    },
   });
 
   const board = new Collection<Board>({
     reactivity,
-    persistence: idbPersister("board"),
+    persistence: createIndexedDBAdapter("board"),
   }).on("persistence.error", errorHandler);
   syncManager.addCollection(board, { name: "board" });
 
@@ -48,7 +50,7 @@ function createCollections() {
     BoardColumn & { expand: { board: { public_id: string } } }
   >({
     reactivity,
-    persistence: idbPersister("board_column"),
+    persistence: createIndexedDBAdapter("board_column"),
   }).on("persistence.error", errorHandler);
   syncManager.addCollection(board_column, {
     name: "board_column",
@@ -62,7 +64,7 @@ function createCollections() {
     }
   >({
     reactivity,
-    persistence: idbPersister("board_item"),
+    persistence: createIndexedDBAdapter("board_item"),
   }).on("persistence.error", errorHandler);
   syncManager.addCollection(board_item, {
     name: "board_item",
@@ -76,7 +78,7 @@ function createCollections() {
 
   const list = new Collection<List>({
     reactivity,
-    persistence: idbPersister("list"),
+    persistence: createIndexedDBAdapter("list"),
   }).on("persistence.error", errorHandler);
   syncManager.addCollection(list, { name: "list" });
 
@@ -84,7 +86,7 @@ function createCollections() {
     ListItem & { expand: { list: { public_id: string } } }
   >({
     reactivity,
-    persistence: idbPersister("list_item"),
+    persistence: createIndexedDBAdapter("list_item"),
   }).on("persistence.error", errorHandler);
   syncManager.addCollection(list_item, {
     name: "list_item",
@@ -108,47 +110,18 @@ const CollectionsContext = createContext<Collections>();
 export function CollectionsProvider(props: { children: JSXElement }) {
   const collections = createCollections();
 
-  // TODO: SyncManager should emit a ready event when it's ready to sync
-  // attempting to sync before then will result the sync manager not finding
-  // the last successful sync and requesting the entire dataset instead of
-  // just the changes since last sync
-  const syncManagerReady = Promise.all([
-    new Promise((res) => {
-      // @ts-ignore
-      collections.syncManager.syncOperations.once(
-        "persistence.pullCompleted",
-        res,
-      );
-    }),
-    new Promise((res) => {
-      // @ts-ignore
-      collections.syncManager.changes.once("persistence.pullCompleted", res);
-    }),
-    new Promise((res) => {
-      // @ts-ignore
-      collections.syncManager.remoteChanges.once(
-        "persistence.pullCompleted",
-        res,
-      );
-    }),
-    new Promise((res) => {
-      // @ts-ignore
-      collections.syncManager.snapshots.once("persistence.pullCompleted", res);
-    }),
-  ]);
-
   createEffect(async () => {
     // delay sync until syncManager metadata is in memory
-    await syncManagerReady;
-    await collections.syncManager.startSyncAll();
+    await collections.syncManager.isReady();
+    await collections.syncManager.syncAll();
   });
 
   // restart sync when browser comes back online
   const listen = new AbortController();
-  addEventListener("offline", () => collections.syncManager.pauseSyncAll(), {
+  addEventListener("offline", () => collections.syncManager.pauseAll(), {
     signal: listen.signal,
   });
-  addEventListener("online", () => collections.syncManager.startSyncAll(), {
+  addEventListener("online", () => collections.syncManager.syncAll(), {
     signal: listen.signal,
   });
   onCleanup(() => listen.abort());

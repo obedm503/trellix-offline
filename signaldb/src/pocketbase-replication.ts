@@ -1,7 +1,8 @@
+import { PersistenceAdapter, ReactivityAdapter } from "@signaldb/core";
+import { SyncManager } from "@signaldb/sync";
 import type { CommonOptions, ListOptions, RecordOptions } from "pocketbase";
 import { pb } from "shared/api/pb";
 import type { User } from "shared/api/schema";
-import { PersistenceAdapter, ReactivityAdapter, SyncManager } from "signaldb";
 
 type Config = { expand?: string[]; fields?: string[] };
 function getOptions(config: Config) {
@@ -20,7 +21,7 @@ function getOptions(config: Config) {
 type Options = {
   persistenceAdapter(id: string): PersistenceAdapter<any, any>;
   reactivity: ReactivityAdapter;
-  onError(error: Error): void;
+  onError(collectionOptions: Config & { name: string }, error: Error): void;
 };
 
 export function createPocketbaseSyncManager<
